@@ -1,6 +1,13 @@
 #ifndef FUNCARRY_H
 #define FUNCARRY_H
 
+#include <numeric>
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+#include "array.hpp"
+
 struct func_arry {
   // parameters
 private:

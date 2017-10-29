@@ -1,9 +1,19 @@
 #ifndef ALG_H
 #define ALG_H
 
+#include <limits>
+#include <iostream>
+#include <cmath>
+#include <vector>
 
+#include "array.hpp"
+#include "profile.hpp"
+#include "funcarry.hpp"
+#include "funcprof.hpp"
+#include "model.hpp"
 
 struct alg {
+  
   func_prof func_state;
   func_prof func_action;
 
@@ -16,13 +26,18 @@ struct alg {
 
   std::vector<double> R;
     
-  alg(const func_prof& s, const func_prof& a) : func_state(s), func_action(a) {
+  alg(const model& mod) : func_state(mod.func_state),
+			  func_action(mod.func_action),
+			  n(mod.num_agent),
+			  m(mod.num_normal),
+			  config(mod) {
     init_R();
   };
 
   void init_R() {
     if (m!=4 or n!=2) {
-      std::cerr<< "only support m=4 and n=2" << endl;
+      std::cerr<< "only support m=4 and n=2" << std::endl;
+      exit(1);
     }
     R = { -1,0,
 	  1,0,
@@ -84,10 +99,11 @@ struct alg {
   };
 
   void linprog(const int&n, const int&m, const double* r,
-	       const double* A, const double* b, const double& f,
-	       const int &status) {
+	       const double* A, const double* b,
+	       double& f, int &status) {
     if (m!=4 || n!=2) {
-      std::cerr<< "only support m=4 and n=2" << endl;
+      std::cerr<< "only support m=4 and n=2" << std::endl;
+      exit(1);
     }
     // check feasibility
     if (b[1] < b[4]/A[8] || b[2] < b[5]/A[10]) {
@@ -137,7 +153,8 @@ struct alg {
 			
 	    // do the linear programming
 	    double f;
-	    linprog(n, m, r, A, b, f);
+	    int status;
+	    linprog(n, m, R.data()+i*n, A.data(), b.data(), f, status);
 	    
 	    // store optimal value to wks
 	    wks[i] = f;

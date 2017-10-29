@@ -1,10 +1,19 @@
 #ifndef FUNCTOR_H
 #define FUNCTOR_H
 
+#include <numeric>
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+#include "profile.hpp"
+#include "funcarry.hpp"
+
+
 struct func_prof {
 private:   
   std::vector<func_arry> arryfunc;
-  const profile end_;
+  profile end_;
   int card_;
   
   // Denote the cardinality of the arryfuncs as c1, c2, ..., cn,
@@ -16,6 +25,15 @@ private:
   std::vector<int> prod;
     
 public:
+  func_prof() = default;
+  func_prof(const func_prof& fp) {
+    arryfunc = fp.arryfunc;
+    end_ = fp.end_;
+    card_ = fp.card_;
+    skip_inc = fp.skip_inc;
+    prod = fp.prod;
+  };
+  
   func_prof(const std::vector<func_arry>& af) : arryfunc(af),
 						skip_inc(af.size()),
 						prod(af.size()) {
