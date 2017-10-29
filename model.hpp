@@ -1,18 +1,16 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-class Model
-{
-    // define the dynamic
-    StateProfile get_next_state(StateProfile& sp, ActionProfile& ap) {
-    
-    }
-
-    // define the profit
-    std::vector<double> get_profit(StateProfile& sp, ActionProfile& ap) {
-    
-    }
-
+struct model {
+  const std::vector<double> beta;
+  std::vector<double> beta;
+  profile get_next_state(const profile& p, const profile& a) {
+    const double d1 = 0;
+    return profile();
+  }
+  std::vector<double> get_profit(const profile& p, const profile& a) {
+    return std::vector<double>();
+  }
 };
 
 
