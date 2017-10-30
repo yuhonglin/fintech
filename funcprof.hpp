@@ -128,6 +128,15 @@ public:
     inc(ret);
     return ret;
   }
+
+  int round(profile& p) const {
+    int idx;
+    for (int i=0; i < p.size(); i++) {
+      idx += arryfunc[i].round(p[i])*prod[i];
+    }
+    p.set_index(idx);
+    return idx;
+  }
 };
 
 #endif /* FUNCTOR_H */

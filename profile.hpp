@@ -1,6 +1,12 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
+#include <numeric>
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+#include "array.hpp"
 
 struct profile
 {

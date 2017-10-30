@@ -15,16 +15,22 @@ private:
   std::vector<double> ub;
   std::vector<double> stp;
 
+  std::vector<double> ub_true;
+  
   array end_;
-
   int card_;
 
-  int card_single(double l, const double& u, const double& s) {
+  std::vector<int> prod;
+
+  std::vector<int> card_each;
+  
+  int card_single(double l, const double& u, const double& s, double& ut) {
     int ret = 0;
     while(l <= u) {
       ret++;
       l += s;
     };
+    ut = l;
     return ret;
   };
     
@@ -38,7 +44,9 @@ public:
 	
     card_ = 1;
     for (int i=0; i<l.size(); i++) {
-      card_ *= card_single(lb[i], ub[i], stp[i]);
+      prod[i] = card_;
+      card_each[i] = card_single(lb[i], ub[i], stp[i], ub_true[i]);
+      card_ *= card_each[i];
     }
   };
     
@@ -72,6 +80,27 @@ public:
   int card() const {
     return card_;
   };
+
+  int round(array& a) const {
+    int idx = 0;
+    for (int i=0; i<a.size(); i++) {
+      int tmpidx = std::round((a[i]-lb[i])/stp[i]);
+      double tmpval = lb[i] + tmpidx*stp[i];
+      if (tmpval > ub[i]) {
+	std::cout << "warning: > ub" << std::endl;
+	a[i] = ub_true[i];
+	idx += prod[i]*card_each[i];
+      } else if (tmpval < lb[i]) {
+	std::cout << "warning: < lb" << std::endl;
+	a[i] = lb[i];
+      } else {
+	a[i] = tmpval;
+	idx += prod[i]*tmpidx;
+      }
+    }
+    a.set_index(idx);
+    return idx;
+  }
 };
 
 #endif /* FUNCARRY_H */

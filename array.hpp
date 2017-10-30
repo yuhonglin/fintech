@@ -1,6 +1,9 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+#include <vector>
+#include <iostream>
+
 struct array {
 private:
   std::vector<double> value;
@@ -28,6 +31,9 @@ public:
   };
   int index() const {
     return index_;
+  }
+  int set_index(const int &i) {
+    index_ = i;
   }
 };
 

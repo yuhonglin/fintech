@@ -26,7 +26,7 @@ struct alg {
 
   std::vector<double> R;
     
-  alg(const model& mod) : func_state(mod.func_state),
+  alg(model& mod) : func_state(mod.func_state),
 			  func_action(mod.func_action),
 			  n(mod.num_agent),
 			  m(mod.num_normal),
@@ -65,8 +65,8 @@ struct alg {
   };
 
   // set the first part of b
-  void set_b_1(std::vector<double>& b, const profile& state_prof,
-	       const profile& action_prof, const std::vector<double>& W) {
+  void set_b_1(std::vector<double>& b, profile& state_prof,
+	       profile& action_prof, std::vector<double>& W) {
     // figure out the next state profile
     profile next_state = config.get_next_state(state_prof, action_prof);
     for (int i=0; i<m; i++) {
@@ -75,8 +75,8 @@ struct alg {
   }
 
   // set the second part of b
-  void set_b_2(std::vector<double>& b, const profile& state_prof,
-	       const profile& action_prof, const std::vector<double>& W) {
+  void set_b_2(std::vector<double>& b, profile& state_prof,
+	       profile& action_prof, std::vector<double>& W) {
     // get current profit
     std::vector<double> crnt_profit = config.get_profit(state_prof, action_prof);
 	
@@ -98,8 +98,8 @@ struct alg {
     }
   };
 
-  void linprog(const int&n, const int&m, const double* r,
-	       const double* A, const double* b,
+  void linprog(int&n, int&m, double* r,
+	       double* A, double* b,
 	       double& f, int &status) {
     if (m!=4 || n!=2) {
       std::cerr<< "only support m=4 and n=2" << std::endl;
