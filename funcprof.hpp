@@ -130,7 +130,7 @@ public:
   }
 
   int round(profile& p) const {
-    int idx;
+    int idx = 0;
     for (int i=0; i < p.size(); i++) {
       idx += arryfunc[i].round(p[i])*prod[i];
     }

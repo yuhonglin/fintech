@@ -37,16 +37,17 @@ private:
 public:
   func_arry(const std::vector<double>& l,
 	    const std::vector<double>& u,
-	    const std::vector<double>& s) {
-    lb   = l;
-    ub   = u;
-    stp  = s;
-	
+	    const std::vector<double>& s) : lb(l),
+					    ub(u),
+					    stp(s),
+					    prod(l.size()),
+					    ub_true(l.size()),
+					    card_each(l.size()) {
     card_ = 1;
     for (int i=0; i<l.size(); i++) {
       prod[i] = card_;
       card_each[i] = card_single(lb[i], ub[i], stp[i], ub_true[i]);
-      card_ *= card_each[i];
+      card_ *= card_each[i]; 
     }
   };
     

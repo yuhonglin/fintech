@@ -18,6 +18,8 @@ struct model {
 
   int num_agent;
   int num_normal;
+
+    double init_w;
   
   // discount factor for each firm;
   std::vector<double> beta;
@@ -40,9 +42,7 @@ struct model {
     for (int i=0; i<num_agent; i++) {
       ret[i][0] = (1+delta1[i]) * (1-delta2[i]) * s[i][0] + a[i][0];
     }
-
     func_state.round(ret);
-    
     return ret;
   }
 
@@ -124,7 +124,7 @@ struct model {
   }
   
   std::vector<double> get_clientcapital_decfactor(const profile &s, const profile &a) {
-    return std::vector<double>(num_agent, 0.3);
+    return std::vector<double>(num_agent, 0.9);
   }
   
 };

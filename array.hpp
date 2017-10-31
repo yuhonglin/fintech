@@ -31,10 +31,10 @@ public:
   };
   int index() const {
     return index_;
-  }
-  int set_index(const int &i) {
+  };
+  void set_index(const int &i) {
     index_ = i;
-  }
+  };
 };
 
 namespace std {
