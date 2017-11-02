@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 
   feenableexcept(-1 xor FE_INEXACT);
   
-  func_arry state({0.1}, {3.0}, {0.1});
+  func_arry state({0.1}, {3.0}, {0.01});
 
   func_arry act({1., 1., 1.},
 		{2.1, 2.1, 2.1},

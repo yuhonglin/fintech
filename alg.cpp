@@ -38,10 +38,19 @@ void alg::init_R() {
   }
   R.reserve(m*2);
   const double pi = 3.14159265358979323846264338;
+  double tmp;
   for (int i=0; i<m; i++) {
-    R.push_back(std::cos(i*2*pi/m));
-    R.push_back(std::sin(i*2*pi/m));
-    //std::cout << std::cos(i*2*pi/m) << '\t' << std::sin(i*2*pi/m) << std::endl;
+    tmp = std::cos(i*2*pi/m);
+    if (std::abs(tmp) < 1e-15)
+      R.push_back(0.);
+    else
+      R.push_back(tmp);
+
+    tmp = std::sin(i*2*pi/m);
+    if (std::abs(tmp) < 1e-15)
+      R.push_back(0);
+    else
+      R.push_back(tmp);
   }
 
 #ifdef USE_FORTRAN_SOVLER
@@ -54,6 +63,7 @@ void alg::init_R() {
 #endif
 
   min_b_idx = {m/2, m/4*3}; // MAYBE WRONG
+  
 }
 
 // set the first part of A matrix of constraint
@@ -91,8 +101,8 @@ void alg::set_lb(std::vector<double>& b, profile& state_prof,
       std::vector<double> iter_profit = config.get_profit(state_prof, iter);
       profile iter_nxtstat = config.get_next_state(state_prof, iter);		
       double min_b = -W[iter_nxtstat.index()*m + min_b_idx[i]];
-      double tmp = ((1-config.beta[i])*(iter_profit[i]-crnt_profit[i]) + config.beta[i]*min_b)
-	/ config.beta[i];
+      double tmp = ((1-config.beta[i])*(iter_profit[i]-crnt_profit[i])
+		    + config.beta[i]*min_b) / config.beta[i];
       if (maxvalue < tmp) {
 	maxvalue = tmp;
       }
@@ -110,7 +120,7 @@ void alg::set_ub(std::vector<double>& b, profile& state_prof,
   // figure out the next state profile
   profile next_state = config.get_next_state(state_prof, action_prof);
   for (int i=n; i<n+m; i++) {
-    b[i] = W[next_state.index()*m+i];
+    b[i] = W[next_state.index()*m+i-n];
   }
 
   for (int i=0; i<n; i++) {
@@ -122,18 +132,6 @@ void alg::solve() {
       
   std::vector<double> W(func_state.card()*m, init_w);
 
-  // for debug
-  // std::ifstream debugif("./data_9");
-  // int debugidx = 0;
-  // for (int si =0; si < func_state.card(); si++) {
-  //   for (int sj=0; sj < m; sj++) {
-  //     debugif >> W[debugidx];
-  //     debugidx++;
-  //   }
-  // }
-  // debugif.close();
-  // debug end
-  
   std::vector<double> W_new(W);
 
   std::vector<double> c(n,0);   // objective
