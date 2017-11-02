@@ -14,41 +14,16 @@ private:
   std::vector<array> value;
   int index_;
 public:
-  profile() : index_(-1), value(0) {};
-  std::vector<double>::size_type size() { return value.size(); };
-  array& operator[](const int i) {
-    return value[i];
-  };
-  bool operator!=(const profile &b) const {
-    return (index_!=b.index_) || (value!=b.value);
-  };
-  bool operator==(const profile &b) const {
-    return (index_==b.index_) && (value==b.value);
-  };
-  int operator++() {
-    return index_++;
-  };
-  int operator++(int) {
-    return ++index_;
-  };
-  void set_index(const int &i) { index_ = i; }
-  void push_back(const array &a) { value.push_back(a); }
-  int index() { return index_; };
+  profile();
+  std::vector<double>::size_type size();
+  array& operator[](const int i);
+  bool operator!=(const profile &b) const;
+  bool operator==(const profile &b) const;
+  int operator++();
+  int operator++(int);
+  void set_index(const int &i);
+  void push_back(const array &a);
+  int index();
 };
-
-
-namespace std {
-  ostream& operator<< (ostream& o, ::profile& p) {
-    o << '(' << p.index() << ")\t";	
-    for (int i=0; i<p.size(); i++) {
-      for (int j=0; j<p[i].size(); j++) {
-	o << p[i][j] << ',';
-      };
-      cout << " | ";
-    };
-    return o;
-  };
-};
-
 
 #endif /* PROFILE_H */
