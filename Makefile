@@ -11,3 +11,7 @@ option = -O3
 
 run: $(fortran_obj) $(cpp_obj) 
 	g++ $(option) -std=c++11 $^ -o $@ -lgfortran
+
+clean:
+	rm *.o
+	rm ./run

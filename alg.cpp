@@ -1,6 +1,8 @@
 #include <limits>
 #include <sstream>
 
+#include <omp.h>
+
 #include "alg.hpp"
 
 #define USE_FORTRAN_SOVLER
@@ -145,6 +147,7 @@ void alg::solve() {
       if (state_prof.index()%10 == 0) {
 	std::cout << "progress : " << float(state_prof.index())/func_state.card() << std::endl;
       }
+      // #pragma omp parallel for
       for (int i = 0; i<m ; i++) {
 	// allocate the solver, EACH PER THREAD
 	lp_solver linprog(n,m);
@@ -194,13 +197,18 @@ void alg::solve() {
 
 	  // store optimal value to wks
 	  if (status == lp_solver::INFEASIBLE) {
-	    *iter_wks = -std::numeric_limits<double>::infinity();
+	    (*iter_wks) = -std::numeric_limits<double>::infinity();
 	  } else {
-	    *iter_wks = -f;
+	    (*iter_wks) = -f;
 	  }
 	  std::vector<double> crnt_profit = config.get_profit(state_prof, action_prof);
-	  for (int j=0; j<n; j++)
-	    (*iter_wks) += (1-config.beta[j])*r[j]*crnt_profit[j];
+	  for (int j=0; j<n; j++) {
+#ifdef USE_FORTRAN_SOVLER
+	    (*iter_wks) += (1-config.beta[j])*r[j*m+i]*crnt_profit[j];
+#else	    
+	    (*iter_wks) += (1-config.beta[j])*r[j+i*n]*crnt_profit[j];
+#endif
+	  }
 	  iter_wks++;
 	}
 	// find the maximum of wks
@@ -233,7 +241,7 @@ void alg::solve() {
     }
     of.close();
 	  
-    if (normdiff < 0.001) {
+    if (normdiff < 0.00000001) {
       // converged
       exit(0);
     } else {

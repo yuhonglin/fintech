@@ -16,6 +16,9 @@ profile model::get_next_state(profile& s, profile& a) {
   }
   func_state.round(ret);
   return ret;
+
+  /* prinson dilemma */
+  // return s;
 }
 
 // profit function
@@ -33,6 +36,28 @@ std::vector<double> model::get_profit(profile& s, profile& a) {
   }
     
   return ret;
+
+  
+  /* prinson dilemma */  
+  // double act1 = a[0][0];
+  // double act2 = a[1][0];
+  // std::vector<double> ret(num_agent);
+  // if (act1 == 1. and act2 == 1.) {
+  //   ret[0] = 4;
+  //   ret[1] = 4;
+  // } else if (act1==1.0 and act2==1.5) {
+  //   ret[0] = 0;
+  //   ret[1] = 6;
+  // } else if (act1==1.5 and act2==1.0) {
+  //   ret[0] = 6;
+  //   ret[1] = 0;
+  // } else if (act1==1.5 and act2==1.5) {
+  //   ret[0] = 2;
+  //   ret[1] = 2;
+  // } else {
+  //   std::cerr << "ERROR: unknown action" << std::endl;
+  // }
+  // return ret;
 }
 
 /////////////////////

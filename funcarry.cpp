@@ -59,16 +59,22 @@ int func_arry::card() const {
 };
 
 int func_arry::round(array& a) const {
+  //std::cout << "--------------------------------------" << std::endl;
+  //std::cout << a << std::endl;
   int idx = 0;
   for (int i=0; i<a.size(); i++) {
+    if (a[i] < lb[i]) {
+      std::cout << "warning: < lb" << std::endl;
+    }
+    if (a[i] > ub_true[i]) {
+      std::cout << "warning: > ub" << std::endl;
+    }
     int tmpidx = std::round((a[i]-lb[i])/stp[i]);
     double tmpval = lb[i] + tmpidx*stp[i];
     if (tmpval > ub[i]) {
-      std::cout << "warning: > ub" << std::endl;
       a[i] = ub_true[i];
       idx += prod[i]*card_each[i];
     } else if (tmpval < lb[i]) {
-      std::cout << "warning: < lb" << std::endl;
       a[i] = lb[i];
     } else {
       a[i] = tmpval;
@@ -76,6 +82,7 @@ int func_arry::round(array& a) const {
     }
   }
   a.set_index(idx);
+  //std::cout << a << std::endl;
   return idx;
 }
 

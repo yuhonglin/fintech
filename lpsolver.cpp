@@ -1,5 +1,6 @@
 #include <limits>
 #include <iostream>
+#include <cmath>
 
 #include "lpsolver.hpp"
 
@@ -52,6 +53,9 @@ void lp_solver::solve(double* c, double* A, // inputs
   // }
   // std::cout << "]\n";
 
+#define USE_LSSOL  
+#ifdef USE_LSSOL
+  
   int inform;
   int ldR = 0;
 
@@ -66,4 +70,32 @@ void lp_solver::solve(double* c, double* A, // inputs
     std::cout << "inform = " << inform << std::endl;
     stat = ERROR;
   }
+
+#else
+  if (nclin!=4) {
+    std::cerr << "only support m=4, not " << nclin << std::endl;
+    exit(1);
+  }
+  //solve by basic method when n == 2
+  double f = 0.;
+  for (int i = 0; i < n; i++) {
+    double l = std::max(lb[i], -ub[4+i]);
+    double u = std::min(ub[i],  ub[2+i]);
+    if (l > u) {
+      // infeasible
+      stat = INFEASIBLE;
+      return;
+    }
+    if (c[i] > 0) {
+      f += c[i]*l;
+      sol[i] = l;
+    } else {
+      f += c[i]*u;
+      sol[i] = u;
+    }
+  }
+  obj = f;
+      
+#endif
+      
 }

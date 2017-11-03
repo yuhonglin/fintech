@@ -23,4 +23,8 @@ public:
   void set_index(const int &i);
 };
 
+namespace std {
+  ostream& operator<< (ostream& o, ::array& a);
+}
+
 #endif /* ARRAY_H */

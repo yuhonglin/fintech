@@ -104,10 +104,13 @@ profile func_prof::next(const profile& p) const {
 }
 
 int func_prof::round(profile& p) const {
+  //  std::cout << "----------------------" << std::endl;
+  //  std::cout << p << std::endl;
   int idx = 0;
   for (int i=0; i < p.size(); i++) {
     idx += arryfunc[i].round(p[i])*prod[i];
   }
   p.set_index(idx);
+  //  std::cout << p << std::endl;  
   return idx;
 }

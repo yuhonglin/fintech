@@ -26,4 +26,9 @@ public:
   int index();
 };
 
+namespace std {
+  ostream& operator<< (ostream& o, ::profile& p);
+}
+
+
 #endif /* PROFILE_H */
