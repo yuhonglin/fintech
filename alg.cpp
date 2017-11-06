@@ -241,7 +241,7 @@ void alg::solve() {
     }
     of.close();
 	  
-    if (normdiff < 0.00000001) {
+    if (normdiff < 0.000001) {
       // converged
       exit(0);
     } else {

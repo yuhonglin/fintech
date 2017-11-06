@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
   mod.num_normal = 4;
   mod.func_action = func_prof({act, act});
   mod.func_state = func_prof({state, state});
-  mod.beta = {0.9, 0.9};
-  mod.init_w = 1000;
+  mod.beta = {0.1, 0.1};
+  mod.init_w = 5;
 
   alg a(mod);
   a.solve();

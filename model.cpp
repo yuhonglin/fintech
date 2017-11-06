@@ -23,6 +23,7 @@ profile model::get_next_state(profile& s, profile& a) {
 
 // profit function
 std::vector<double> model::get_profit(profile& s, profile& a) {
+  /* FinTech model */
   std::vector<double> ret(num_agent);
   auto quantity  = get_quantity(a);
   auto unitcost  = get_unitproduct_cost(a);
@@ -37,7 +38,6 @@ std::vector<double> model::get_profit(profile& s, profile& a) {
     
   return ret;
 
-  
   /* prinson dilemma */  
   // double act1 = a[0][0];
   // double act2 = a[1][0];
@@ -58,6 +58,9 @@ std::vector<double> model::get_profit(profile& s, profile& a) {
   //   std::cerr << "ERROR: unknown action" << std::endl;
   // }
   // return ret;
+
+  
+  
 }
 
 /////////////////////
