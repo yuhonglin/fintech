@@ -17,15 +17,15 @@ void debug_print(double* d, int nrow, int ncol) {
 }
 
 
-alg::alg(model& mod) : n(mod.num_agent()),
-		       init_w(mod.init_constant()),
+alg::alg(model* mod) : n(mod->num_agent()),
+		       init_w(mod->init_constant()),
 		       config(mod) {
-  if (mod.num_normal() % 4 != 0) {
-    m = std::round(mod.num_normal()/4)*4;
+  if (mod->num_normal() % 4 != 0) {
+    m = std::round(mod->num_normal()/4)*4;
     std::cout << "warning: round number of normals to " << m << std::endl;
   }
 
-  m = mod.num_normal();
+  m = mod->num_normal();
   
   init_R();
 };
@@ -88,7 +88,7 @@ void alg::set_A_2(std::vector<double>& A) {
 void alg::set_lb(std::vector<double>& b, func_prof& func_action, profile& state_prof,
 		  profile& action_prof, std::vector<double>& W) {
   // get current profit
-  std::vector<double> crnt_profit = config.get_profit(state_prof, action_prof);
+  std::vector<double> crnt_profit = config->get_profit(state_prof, action_prof);
 
   profile iter;
   // CHECK: whether newly compute or use the previous one in the calling loop?
@@ -100,11 +100,11 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_action, profile& state_
     for ( ; iter!=func_action.end(); func_action.inc_only(iter,i) ) {
       if (iter == action_prof)
 	continue;
-      std::vector<double> iter_profit = config.get_profit(state_prof, iter);
-      profile iter_nxtstat = config.get_next_state(state_prof, iter);		
+      std::vector<double> iter_profit = config->get_profit(state_prof, iter);
+      profile iter_nxtstat = config->get_next_state(state_prof, iter);		
       double min_b = -W[iter_nxtstat.index()*m + min_b_idx[i]];
-      double tmp = ((1-config.beta()[i])*(iter_profit[i]-crnt_profit[i])
-		    + config.beta()[i]*min_b) / config.beta()[i];
+      double tmp = ((1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
+		    + config->beta()[i]*min_b) / config->beta()[i];
       if (maxvalue < tmp) {
 	maxvalue = tmp;
       }
@@ -120,7 +120,7 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_action, profile& state_
 void alg::set_ub(std::vector<double>& b, func_prof& func_action, profile& state_prof,
 		 profile& action_prof, std::vector<double>& W) {
   // figure out the next state profile
-  profile next_state = config.get_next_state(state_prof, action_prof);
+  profile next_state = config->get_next_state(state_prof, action_prof);
   for (int i=n; i<n+m; i++) {
     b[i] = W[next_state.index()*m+i-n];
   }
@@ -133,7 +133,7 @@ void alg::set_ub(std::vector<double>& b, func_prof& func_action, profile& state_
 void alg::solve() {
 
   // Get the functor of state profiles, used in looping
-  auto func_state = config.get_state_func();
+  auto func_state = config->get_state_func();
 
   // store the (working) constants
   std::vector<double> W(func_state.card()*m, init_w);
@@ -154,7 +154,7 @@ void alg::solve() {
       }
       
       // get the functor of actions, used for iteration
-      func_prof func_action = config.get_action_func(state_prof);
+      func_prof func_action = config->get_action_func(state_prof);
       
       // #pragma omp parallel for
       for (int i = 0; i<m ; i++) {
@@ -188,9 +188,9 @@ void alg::solve() {
 	  double *r = R.data();
 	  
 #ifdef USE_FORTRAN_SOVLER	  
-	  for (int j=0; j<n; j++) c[j] = -config.beta()[j]*r[j*m+i];
+	  for (int j=0; j<n; j++) c[j] = -config->beta()[j]*r[j*m+i];
 #else
-	  for (int j=0; j<n; j++) c[j] = -config.beta()[j]*r[j+i*n];
+	  for (int j=0; j<n; j++) c[j] = -config->beta()[j]*r[j+i*n];
 #endif
 	  
 	  linprog.solve(c.data(), R.data(), lb.data(), ub.data(), 0, f, x.data(), status);
@@ -206,12 +206,12 @@ void alg::solve() {
 	  } else {
 	    (*iter_wks) = -f;
 	  }
-	  std::vector<double> crnt_profit = config.get_profit(state_prof, action_prof);
+	  std::vector<double> crnt_profit = config->get_profit(state_prof, action_prof);
 	  for (int j=0; j<n; j++) {
 #ifdef USE_FORTRAN_SOVLER
-	    (*iter_wks) += (1-config.beta()[j])*r[j*m+i]*crnt_profit[j];
+	    (*iter_wks) += (1-config->beta()[j])*r[j*m+i]*crnt_profit[j];
 #else	    
-	    (*iter_wks) += (1-config.beta()[j])*r[j+i*n]*crnt_profit[j];
+	    (*iter_wks) += (1-config->beta()[j])*r[j+i*n]*crnt_profit[j];
 #endif
 	  }
 	  iter_wks++;

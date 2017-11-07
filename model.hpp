@@ -14,7 +14,7 @@
 
 
 struct model {
-private:
+protected:
   func_prof func_state;
   func_prof func_action;
 
@@ -26,30 +26,15 @@ private:
   // discount factor for each firm;
   std::vector<double> beta_;
 
-  /* Oligopoly model */
-  int nk;
-  double delta;
-  std::vector<double> c;
-  double cf;
-  double cm;
-  double ps;
-  double rho;
-
-  //////////////
-  // iterface //
-  //////////////
 public:  
   // law of motion
-  profile get_next_state(profile& s, profile& a);
-
+  virtual profile get_next_state(profile& s, profile& a) = 0;
   // profit function
-  std::vector<double> get_profit(profile& s, profile& a);
-
+  virtual std::vector<double> get_profit(profile& s, profile& a) = 0;
   // get action functors
-  func_prof get_action_func(profile& state);
-
+  virtual func_prof get_action_func(profile& state) = 0;
   // get action functors
-  func_prof get_state_func();
+  virtual func_prof get_state_func() = 0;
 
   // getters
   const int&    num_agent() const;
@@ -64,24 +49,6 @@ public:
   model& set_init_constant(const double& c);
   model& set_func_state(const func_prof& fs);
   model& set_func_action(const func_prof& fa);
-  
-  /////////////////////
-  // helper function //
-  /////////////////////
-
-  double F(const double &theta);
-  
-  std::vector<double> get_quantity(profile& a);
-
-  std::vector<double> get_setup_cost(profile &s, profile &a);
-
-  std::vector<double> get_unitproduct_cost(profile &a);
-
-  std::vector<double> get_unitclientcapital_cost(profile &a);
-
-  std::vector<double> get_clientcapital_incfactor(const profile &a);
-  
-  std::vector<double> get_clientcapital_decfactor(const profile &s, const profile &a);
   
 };
 

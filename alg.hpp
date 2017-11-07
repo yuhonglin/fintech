@@ -8,6 +8,7 @@
 #include <fstream>
 #include <algorithm>
 #include <string>
+#include <memory>
 
 #include "array.hpp"
 #include "profile.hpp"
@@ -22,15 +23,16 @@ struct alg {
   int n;
 
   std::vector<int> min_b_idx;
-    
-  model config;
-
-  std::vector<double> R;
 
   double init_w;
-  alg(model& mod);
+
+  std::vector<double> R;
+  
+  model* config; // observer
 
   std::string output_dir;
+  
+  alg(model* mod);
 
   void init_R();
   
