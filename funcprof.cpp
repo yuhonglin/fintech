@@ -103,6 +103,10 @@ profile func_prof::next(const profile& p) const {
   return ret;
 }
 
+func_arry& func_prof::operator[] (const int &i) {
+  return arryfunc[i];
+}
+
 int func_prof::round(profile& p) const {
   //  std::cout << "----------------------" << std::endl;
   //  std::cout << p << std::endl;

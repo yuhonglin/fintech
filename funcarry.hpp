@@ -42,6 +42,10 @@ public:
   int card() const;
 
   int round(array& a) const;
+
+  void set_ub(const double& u, const int& i);
+
+  void set_lb(const double& l, const int& i);  
 };
 
 #endif /* FUNCARRY_H */

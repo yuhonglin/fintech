@@ -58,6 +58,35 @@ int func_arry::card() const {
   return card_;
 };
 
+void func_arry::set_ub(const double& u, const int& i) {
+  ub[i] = u;
+
+  int tmp = card_single(lb[i], ub[i], stp[i], ub_true[i]);
+  // update card_
+  card_ = card_ / card_each[i] * tmp;
+  // update prod
+  for (int j=i+1; j<lb.size(); j++) {
+    prod[j] = prod[j] / card_each[i] * tmp;
+  }
+  // update card_each
+  card_each[i] = tmp;
+}
+
+void func_arry::set_lb(const double& l, const int& i) {
+  lb[i] = l;
+
+  int tmp = card_single(lb[i], ub[i], stp[i], ub_true[i]);
+  // update card_
+  card_ = card_ / card_each[i] * tmp;
+  // update prod
+  for (int j=i+1; j<lb.size(); j++) {
+    prod[j] = prod[j] / card_each[i] * tmp;
+  }
+  // update card_each
+  card_each[i] = tmp;
+}
+
+
 int func_arry::round(array& a) const {
   //std::cout << "--------------------------------------" << std::endl;
   //std::cout << a << std::endl;

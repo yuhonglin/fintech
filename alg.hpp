@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <string>
 
 #include "array.hpp"
 #include "profile.hpp"
@@ -17,9 +18,6 @@
 
 struct alg {
   
-  func_prof func_state;
-  func_prof func_action;
-
   int m;
   int n;
 
@@ -32,6 +30,8 @@ struct alg {
   double init_w;
   alg(model& mod);
 
+  std::string output_dir;
+
   void init_R();
   
   // set the first part of A matrix of constraint
@@ -41,11 +41,11 @@ struct alg {
   void set_A_2(std::vector<double>& A);
 
   // set the first part of ub
-  void set_lb(std::vector<double>& b, profile& state_prof,
+  void set_lb(std::vector<double>& b, func_prof& func_action, profile& state_prof,
 	       profile& action_prof, std::vector<double>& W);
 
   // set the second part of ub
-  void set_ub(std::vector<double>& b, profile& state_prof,
+  void set_ub(std::vector<double>& b, func_prof& func_action, profile& state_prof,
 	       profile& action_prof, std::vector<double>& W);
 
   void solve();

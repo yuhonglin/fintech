@@ -47,6 +47,8 @@ public:
   profile next(const profile& p) const;
 
   int round(profile& p) const;
+
+  func_arry& operator[] (const int &i);
 };
 
 #endif /* FUNCTOR_H */

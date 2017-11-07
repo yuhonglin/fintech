@@ -10,23 +10,25 @@ int main(int argc, char *argv[])
 {
 
 //  feenableexcept(-1 xor FE_INEXACT);
-  
-  func_arry state({0.1}, {3.0}, {0.1});
 
-  func_arry act({1., 1., 1.},
-  		{2.1, 2.1, 2.1},
-  		{0.5, 0.5, 0.5});
+  /* Fintech */
+  // func_arry state({0.1}, {3.0}, {0.1});
+
+  // func_arry act({1., 1., 1.},
+  // 		{2.1, 2.1, 2.1},
+  // 		{0.5, 0.5, 0.5});
     
-  model mod;
-  mod.num_agent = 2;
-  mod.num_normal = 4;
-  mod.func_action = func_prof({act, act});
-  mod.func_state = func_prof({state, state});
-  mod.beta = {0.1, 0.1};
-  mod.init_w = 5;
+  // model mod;
+  // mod.set_num_agent(2)
+  //    .set_num_normal(4)
+  //    .set_func_action(func_prof({act, act}))
+  //    .set_func_state(func_prof({state, state}))
+  //    .set_beta({0.1, 0.1})
+  //    .set_init_constant(5);
 
-  alg a(mod);
-  a.solve();
+  // alg a(mod);
+  // a.output_dir = "/home/honglin/tmp/";
+  // a.solve();
 
 
 
@@ -38,15 +40,17 @@ int main(int argc, char *argv[])
   // 		{0.5});
     
   // model mod;
-  // mod.num_agent = 2;
-  // mod.num_normal = 4;
-  // mod.func_action = func_prof({act, act});
-  // mod.func_state = func_prof({state, state});
-  // mod.beta = {0.8, 0.8};
-  // mod.init_w = 10;
+  // mod.set_num_agent(2)
+  //   .set_num_normal(12)
+  //   .set_func_action(func_prof({act, act}))
+  //   .set_func_state(func_prof({state, state}))
+  //   .set_beta({0.8, 0.8})
+  //   .set_init_constant(8);
 
   // alg a(mod);
+  // a.output_dir = "/home/honglin/tmp/";
   // a.solve();
-  
+
+  /* Oligopoly */
 
 }
