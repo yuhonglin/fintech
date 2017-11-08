@@ -51,6 +51,8 @@ public:
   func_arry& operator[] (const int &i);
 
   void set_ub(const std::vector<double>&, const int&);
+
+  std::vector<profile> get_all();
 };
 
 #endif /* FUNCTOR_H */

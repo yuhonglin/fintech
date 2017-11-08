@@ -129,6 +129,20 @@ void func_prof::set_ub(const std::vector<double>&ub, const int& idx) {
   card_ = prod[0]*arryfunc[0].card();
 }
 
+
+std::vector<profile> func_prof::get_all() {
+  std::vector<profile> ret(card_);
+  profile iter = begin();
+  for (int i=0; i<card_; i++) {
+    ret[i] = iter;
+    inc(iter);
+    if (iter == end_)
+      break;
+  }
+  return ret;
+}
+
+
 int func_prof::round(profile& p) const {
   //  std::cout << "----------------------" << std::endl;
   //  std::cout << p << std::endl;

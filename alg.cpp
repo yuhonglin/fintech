@@ -139,15 +139,14 @@ void alg::solve() {
   std::vector<double> W(func_state.card()*m, init_w);
   std::vector<double> W_new(W);
 
-  std::vector<double> c(n,0);   // objective
-  std::vector<double> x(n,0);   // solution
-
   int loop_index = 0;
   while (true) {
-    for ( profile state_prof  = func_state.begin();
-	          state_prof != func_state.end();
-	          func_state.inc(state_prof) ) {
 
+    #pragma omp parallel for num_threads(30)
+    auto sp_all = func_state.get_all();
+    for (int spidx = 0; spidx < func_state.card(); spidx++) {
+      profile state_prof = sp_all[spidx];
+      
       // report progress
       if (state_prof.index()%10 == 0) {
 	std::cout << "progress : " << float(state_prof.index())/func_state.card() << std::endl;
@@ -155,11 +154,12 @@ void alg::solve() {
       
       // get the functor of actions, used for iteration
       func_prof func_action = config->get_action_func(state_prof);
-      
-      // #pragma omp parallel for
+            
       for (int i = 0; i<m ; i++) {
 	// allocate the solver, EACH PER THREAD
 	lp_solver linprog(n,m);
+	std::vector<double> c(n,0);   // objective
+	std::vector<double> x(n,0);   // solution
 	
 	// For each state and normal, we need to update
 	// the correponding constant and store it to
