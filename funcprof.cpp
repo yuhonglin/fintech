@@ -107,6 +107,28 @@ func_arry& func_prof::operator[] (const int &i) {
   return arryfunc[i];
 }
 
+void func_prof::set_ub(const std::vector<double>&ub, const int& idx) {
+  // First, update the arryfunc
+  for (int i=0; i<arryfunc.size(); i++) {
+    arryfunc[i].set_ub(ub[i], idx);
+  }
+  // Then repeat the code in constructor
+  skip_inc.back() = arryfunc.back().card()-1;
+  prod.back() = 1;
+  for (int i=arryfunc.size()-2; i>=0; i--) {
+    prod[i] = prod[i+1]*arryfunc[i+1].card();
+    // Let me explain the following equation, the index increment of 
+    // "incmenting with skipping" at i can be computed in two steps
+    // 1. increase the index by the total cardinality of i to 1.
+    // 2. decrease the index by the total cardinality of i-1 to 1 minusing 1.
+    // So the result is prod[i-1]*card[i] - (prod[i-1]-1)
+    // Because the algorithm will increment the index by 1 later, still
+    // need to remove one from the above.
+    skip_inc[i] = prod[i]*(arryfunc[i].card()-1);
+  }
+  card_ = prod[0]*arryfunc[0].card();
+}
+
 int func_prof::round(profile& p) const {
   //  std::cout << "----------------------" << std::endl;
   //  std::cout << p << std::endl;

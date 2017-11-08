@@ -49,6 +49,8 @@ public:
   int round(profile& p) const;
 
   func_arry& operator[] (const int &i);
+
+  void set_ub(const std::vector<double>&, const int&);
 };
 
 #endif /* FUNCTOR_H */

@@ -5,7 +5,8 @@
 
 #include "model.hpp"
 #include "alg.hpp"
-#include "PrisonDilemma.hpp"
+//#include "PrisonDilemma.hpp"
+#include "Oligopoly.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -34,24 +35,49 @@ int main(int argc, char *argv[])
 
 
   /* Prison Dilemma */
-  func_arry state({0.1}, {1.0}, {2.0}); // only one state
+  // func_arry state({0.1}, {1.0}, {2.0}); // only one state
 
-  func_arry act({1.},        // only two possible actions  
-  		{1.9},   
-  		{0.5});
+  // func_arry act({1.},        // only two possible actions  
+  // 		{1.9},   
+  // 		{0.5});
     
-  PrisonDilemma mod;
+  // PrisonDilemma mod;
+  // mod.set_num_agent(2)
+  //   .set_num_normal(12)
+  //   .set_func_action(func_prof({act, act}))
+  //   .set_func_state(func_prof({state, state}))
+  //   .set_beta({0.8, 0.8})
+  //   .set_init_constant(8);
+
+  // alg a(&mod);
+  // a.output_dir = "/home/honglin/tmp/";
+  // a.solve();
+  
+  /* Oligopoly */
+  func_arry state({0.}, {5.01}, {1.0});
+
+  func_arry act({0., 0.},
+  		{5.01, 5.01},
+  		{0.1, 1.0});
+    
+  Oligopoly mod;
   mod.set_num_agent(2)
-    .set_num_normal(12)
-    .set_func_action(func_prof({act, act}))
-    .set_func_state(func_prof({state, state}))
-    .set_beta({0.8, 0.8})
-    .set_init_constant(8);
+     .set_num_normal(4)
+     .set_func_action(func_prof({act, act}))
+     .set_func_state(func_prof({state, state}))
+     .set_beta({0.8, 0.8})
+     .set_init_constant(30);
+
+  mod.c   = {0.9, 0.9};
+  mod.cf  = 2.5;
+  mod.cm  = 1.5;
+  mod.ps  = 1.5;
+  mod.rho = 3;
+  mod.G   = 6;
+  mod.g   = 0.3;
 
   alg a(&mod);
   a.output_dir = "/home/honglin/tmp/";
   a.solve();
-  
-  /* Oligopoly */
   
 }

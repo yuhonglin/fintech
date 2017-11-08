@@ -88,8 +88,6 @@ void func_arry::set_lb(const double& l, const int& i) {
 
 
 int func_arry::round(array& a) const {
-  //std::cout << "--------------------------------------" << std::endl;
-  //std::cout << a << std::endl;
   int idx = 0;
   for (int i=0; i<a.size(); i++) {
     if (a[i] < lb[i]) {
@@ -111,7 +109,6 @@ int func_arry::round(array& a) const {
     }
   }
   a.set_index(idx);
-  //std::cout << a << std::endl;
   return idx;
 }
 

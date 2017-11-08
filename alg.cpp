@@ -1,7 +1,7 @@
 #include <limits>
 #include <sstream>
 
-#include <omp.h>
+//#include <omp.h>
 
 #include "alg.hpp"
 
