@@ -75,26 +75,8 @@ void alg::init_R() {
   
 }
 
-// set the first part of A matrix of constraint
-void alg::set_A_1(std::vector<double>& A) {
-  // The first part is just the R matrix
-  for (int i=0; i<R.size(); i++) {
-    A[i] = R[i];
-  }
-};
-
-
-// the second part of A
-void alg::set_A_2(std::vector<double>& A) {
-  // The first part is just the R matrix
-  for (int i=0; i<R.size(); i++) {
-    A[i] = R[i];
-  }
-};
-
-
 // set the lower bound
-void alg::set_lb(std::vector<double>& b, func_prof& func_action, profile& state_prof,
+void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
 		  profile& action_prof, std::vector<double>& W) {
   // get current profit
   std::vector<double> crnt_profit = config->get_profit(state_prof, action_prof);
@@ -110,7 +92,10 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_action, profile& state_
       if (iter == action_prof)
 	continue;
       std::vector<double> iter_profit = config->get_profit(state_prof, iter);
-      profile iter_nxtstat = config->get_next_state(state_prof, iter);		
+      
+      profile iter_nxtstat = config->get_next_state(state_prof, iter);       // Do NOT forget to round it!!!
+      func_state.round(iter_nxtstat);
+
       double min_b = -W[iter_nxtstat.index()*m + min_b_idx[i]];
       double tmp = ( (1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
 		     + config->beta()[i]*min_b ) / config->beta()[i];
@@ -151,10 +136,12 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_action, profile& state_
 }
 
 // set upper bound
-void alg::set_ub(std::vector<double>& b, func_prof& func_action, profile& state_prof,
+void alg::set_ub(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
 		 profile& action_prof, std::vector<double>& W) {
   // figure out the next state profile
-  profile next_state = config->get_next_state(state_prof, action_prof);
+  profile next_state = config->get_next_state(state_prof, action_prof); // // Do NOT forget to round it!!!
+  func_state.round(next_state);
+  
   for (int i=n; i<n+m; i++) {
     b[i] = W[next_state.index()*m+i-n];
   }
@@ -164,8 +151,7 @@ void alg::set_ub(std::vector<double>& b, func_prof& func_action, profile& state_
   }
 };
 
-void alg::solve() {
-
+void alg::save_grad() {
   // store sub-gradients
   std::stringstream ss;
   ss << output_dir << "/gradient";
@@ -181,7 +167,13 @@ void alg::solve() {
     of << '\n';
   }
   of.close();
+}
 
+
+void alg::solve() {
+
+  // first, save the sub-gradients
+  save_grad();
   
   // Get the functor of state profiles, used in looping
   auto func_state = config->get_state_func();
@@ -227,9 +219,9 @@ void alg::solve() {
 	              action_prof != func_action.end();
 	              func_action.inc(action_prof) ) {
 	  // set the lower bounds of the constraints
-	  set_lb(lb, func_action, state_prof, action_prof, W);
+	  set_lb(lb, func_state, func_action, state_prof, action_prof, W);
 	  // set the upper bounds of the constraints
-	  set_ub(ub, func_action, state_prof, action_prof, W);
+	  set_ub(ub, func_state, func_action, state_prof, action_prof, W);
 	  
 	  // do the linear programming
 	  double f;

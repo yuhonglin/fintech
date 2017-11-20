@@ -38,21 +38,17 @@ struct alg {
 
   int num_thread_;
   
-  // set the first part of A matrix of constraint
-  void set_A_1(std::vector<double>& A);
-
-  // the second part of A
-  void set_A_2(std::vector<double>& A);
-
   // set the first part of ub
-  void set_lb(std::vector<double>& b, func_prof& func_action, profile& state_prof,
+  void set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
 	       profile& action_prof, std::vector<double>& W);
 
   // set the second part of ub
-  void set_ub(std::vector<double>& b, func_prof& func_action, profile& state_prof,
+  void set_ub(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
 	       profile& action_prof, std::vector<double>& W);
 
   void solve();
+
+  void save_grad();    
 };
 
 

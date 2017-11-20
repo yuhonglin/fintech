@@ -14,9 +14,9 @@ int main(int argc, char *argv[])
 
 //  feenableexcept(-1 xor FE_INEXACT);
 
-  //////////////
-  // Fintech  //
-  //////////////
+  // //////////////
+  // // Fintech  //
+  // //////////////
   
   func_arry state({1.0}, {5.1}, {0.1});
 

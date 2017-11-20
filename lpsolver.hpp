@@ -9,7 +9,7 @@ extern "C" {
 		int* inform, int* iter, double* obj, double* clamda,
 		int* iw, int* leniw, double* w, int* lenw, int* code );
 
-};
+}
 
 
 class lp_solver {

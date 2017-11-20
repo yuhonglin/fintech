@@ -6,7 +6,7 @@ func_prof::func_prof(const func_prof& fp) {
   card_ = fp.card_;
   skip_inc = fp.skip_inc;
   prod = fp.prod;
-};
+}
   
 func_prof::func_prof(const std::vector<func_arry>& af) : arryfunc(af),
 							 skip_inc(af.size()),
@@ -25,23 +25,23 @@ func_prof::func_prof(const std::vector<func_arry>& af) : arryfunc(af),
     skip_inc[i] = prod[i]*(af[i].card()-1);
   }
   card_ = prod[0]*af[0].card();
-};
+}
     
 const profile& func_prof::end() {
   return end_;
-};
+}
 
 int func_prof::card() {
   return card_;
-};
+}
   
 profile func_prof::begin() {
   profile ret;
-  for(int i=0; i<arryfunc.size(); i++)
+  for(unsigned int i=0; i<arryfunc.size(); i++)
     ret.push_back(arryfunc[i].begin());
   ret.set_index(0);
   return ret;
-};
+}
 
 void func_prof::inc(profile& p) const {
   for (int i=p.size()-1; i>=0; i--) {
@@ -57,7 +57,7 @@ void func_prof::inc(profile& p) const {
   p = end_;
   // p.set_index(-1);
   return;
-};
+}
 
 void func_prof::inc_skip(profile& p, const int& omit) const {
   for (int i=p.size()-1; i>=0; i--) {
@@ -77,7 +77,7 @@ void func_prof::inc_skip(profile& p, const int& omit) const {
   p = end_;
   //  p.set_index(-1);
   return;
-};
+}
 
 void func_prof::inc_only(profile& p, const int& i) const {
   arryfunc[i].inc(p[i]);
@@ -109,7 +109,7 @@ func_arry& func_prof::operator[] (const int &i) {
 
 void func_prof::set_ub(const std::vector<double>&ub, const int& idx) {
   // First, update the arryfunc
-  for (int i=0; i<arryfunc.size(); i++) {
+  for (unsigned int i=0; i<arryfunc.size(); i++) {
     arryfunc[i].set_ub(ub[i], idx);
   }
   // Then repeat the code in constructor
