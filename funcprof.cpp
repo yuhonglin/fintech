@@ -55,7 +55,7 @@ void func_prof::inc(profile& p) const {
     }
   }
   p = end_;
-  p.set_index(-1);
+  // p.set_index(-1);
   return;
 };
 
@@ -75,7 +75,7 @@ void func_prof::inc_skip(profile& p, const int& omit) const {
     }
   }
   p = end_;
-  p.set_index(-1);
+  //  p.set_index(-1);
   return;
 };
 
@@ -83,7 +83,7 @@ void func_prof::inc_only(profile& p, const int& i) const {
   arryfunc[i].inc(p[i]);
   if (p[i] == arryfunc[i].end()) {
     p = end_;
-    p.set_index(-1);
+    // p.set_index(-1);
     return;
   }
   p.set_index(p.index() + prod[i]);
@@ -92,9 +92,9 @@ void func_prof::inc_only(profile& p, const int& i) const {
 void func_prof::reset(profile& p, const int& i) const {
   p[i] = arryfunc[i].begin();
   if (i>0)
-    p.set_index(p.index() - (p.index()%prod[i-1] - p.index()%prod[i]));
+    p.set_index( p.index() - (p.index()%prod[i-1] - p.index()%prod[i]) );
   else
-    p.set_index(p.index() - p.index()/prod[i]*prod[i]);
+    p.set_index( p.index()%prod[i] );
 }
 
 profile func_prof::next(const profile& p) const {
@@ -153,4 +153,14 @@ int func_prof::round(profile& p) const {
   p.set_index(idx);
   //  std::cout << p << std::endl;  
   return idx;
+}
+
+
+bool func_prof::operator==(const func_prof& fp) const {
+  return
+    (this->arryfunc == fp.arryfunc) &&
+    (end_ == fp.end_) &&
+    (card_ == fp.card_) &&
+    (skip_inc == fp.skip_inc) &&
+    (prod == fp.prod);
 }

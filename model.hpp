@@ -27,13 +27,13 @@ protected:
   std::vector<double> beta_;
 
 public:  
-  // law of motion
+  // return the law-of-motion of states.
   virtual profile get_next_state(profile& s, profile& a) = 0;
-  // profit function
+  // return the profit in a stage game.
   virtual std::vector<double> get_profit(profile& s, profile& a) = 0;
-  // get action functors
+  // return action functors
   virtual func_prof get_action_func(profile& state) = 0;
-  // get action functors
+  // return action functors
   virtual func_prof get_state_func() = 0;
 
   // getters

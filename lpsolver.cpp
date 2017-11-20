@@ -53,7 +53,7 @@ void lp_solver::solve(double* c, double* A, // inputs
   // }
   // std::cout << "]\n";
 
-#define USE_LSSOL  
+#define USE_LSSOL
 #ifdef USE_LSSOL
   
   int inform;

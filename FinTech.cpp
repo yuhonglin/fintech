@@ -84,8 +84,11 @@ std::vector<double> FinTech::get_quantity(profile& a) {
 
 std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
   std::vector<double> ret(num_agent_);
+  // profile next_state = get_next_state(s, a);
   for (int i=0; i<num_agent_; i++) {
-    ret[i] = std::pow(a[i][1],2) / 2 / s[i][0];
+    // ret[i] = std::pow(a[i][1],2) / 2 / next_state[i][0]; // CHECK: should use next state's client capital
+    ret[i] = std::pow(a[i][1],2) / 2 / (1 + s[i][0]);
+    // ret[i] = std::abs(a[i][1]) / 2 / (1+s[i][0]);
   }
   return ret;
 }
@@ -93,19 +96,24 @@ std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
 std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
   std::vector<double> ret(num_agent_);
   for (int i=0; i<num_agent_; i++) {
-    ret[i] = a[i][1];
+    // ret[i] = a[i][1];
+    ret[i] = 0.1*a[i][1];
   }
   return ret;
 }
 
 std::vector<double> FinTech::get_unitclientcapital_cost(profile &a) {
   return std::vector<double>(num_agent_, 1.);
+  // return std::vector<double>(num_agent_, 0.2);
 }
 
 std::vector<double> FinTech::get_clientcapital_incfactor(const profile &a) {
   return std::vector<double>(num_agent_, 0.1);
+  // return std::vector<double>(num_agent_, 0.);
 }
   
 std::vector<double> FinTech::get_clientcapital_decfactor(const profile &s, const profile &a) {
   return std::vector<double>(num_agent_, 0.9);
+  // return std::vector<double>(num_agent_, 0.08);
+  // return std::vector<double>(num_agent_, 0.92);
 }

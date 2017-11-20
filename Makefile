@@ -1,7 +1,7 @@
 fortran_obj = $(patsubst %.f,%.o,$(wildcard *.f))
 cpp_obj = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-option = -O3
+option = -O3 -lm -fopenmp
 
 %.o: %.f 
 	gfortran $(option) -c $^ -o $@

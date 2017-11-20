@@ -45,7 +45,10 @@ public:
 
   void set_ub(const double& u, const int& i);
 
-  void set_lb(const double& l, const int& i);  
+  void set_lb(const double& l, const int& i);
+
+  bool operator== (const func_arry& fa) const;
+  bool operator!= (const func_arry& fa) const;
 };
 
 #endif /* FUNCARRY_H */

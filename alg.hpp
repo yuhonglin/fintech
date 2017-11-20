@@ -35,6 +35,8 @@ struct alg {
   alg(model* mod);
 
   void init_R();
+
+  int num_thread_;
   
   // set the first part of A matrix of constraint
   void set_A_1(std::vector<double>& A);

@@ -20,7 +20,7 @@ func_arry::func_arry(const std::vector<double>& l,
 						    ub_true(l.size()),
 						    card_each(l.size()) {
   card_ = 1;
-  for (int i=0; i<l.size(); i++) {
+  for (int i=l.size()-1; i>=0; i--) {
     prod[i] = card_;
     card_each[i] = card_single(lb[i], ub[i], stp[i], ub_true[i]);
     card_ *= card_each[i]; 
@@ -65,7 +65,7 @@ void func_arry::set_ub(const double& u, const int& i) {
   // update card_
   card_ = card_ / card_each[i] * tmp;
   // update prod
-  for (int j=i+1; j<lb.size(); j++) {
+  for (int j=0; j<i; j++) {
     prod[j] = prod[j] / card_each[i] * tmp;
   }
   // update card_each
@@ -79,7 +79,7 @@ void func_arry::set_lb(const double& l, const int& i) {
   // update card_
   card_ = card_ / card_each[i] * tmp;
   // update prod
-  for (int j=i+1; j<lb.size(); j++) {
+  for (int j=0; j<i; j++) {
     prod[j] = prod[j] / card_each[i] * tmp;
   }
   // update card_each
@@ -112,3 +112,14 @@ int func_arry::round(array& a) const {
   return idx;
 }
 
+
+bool func_arry::operator==(const func_arry& fa) const {
+  return (lb==fa.lb) && (ub==fa.ub) && (stp==fa.stp) && (ub_true==fa.ub_true)
+    && (end_==fa.end_)
+    && (card_==fa.card_) && (prod==fa.prod) && (card_each==fa.card_each);
+}
+
+
+bool func_arry::operator!= (const func_arry& fa) const {
+  return !(*this==fa);
+}

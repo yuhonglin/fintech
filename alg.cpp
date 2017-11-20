@@ -1,16 +1,23 @@
 #include <limits>
 #include <sstream>
+#include <cmath>
 
-//#include <omp.h>
+#include <omp.h>
 
 #include "alg.hpp"
+
+#include "FinTech.hpp"
 
 #define USE_FORTRAN_SOVLER
 
 void debug_print(double* d, int nrow, int ncol) {
   for (int i=0; i<nrow; i++) {
     for (int j=0; j<ncol; j++) {
+#ifdef USE_FORTRAN_SOVLER
+      std::cout << d[i+j*nrow] << '\t';
+#else
       std::cout << d[i*ncol+j] << '\t';
+#endif      
     }
     std::cout << '\n';
   }
@@ -28,6 +35,8 @@ alg::alg(model* mod) : n(mod->num_agent()),
   m = mod->num_normal();
   
   init_R();
+
+  num_thread_ = 18;
 };
 
 
@@ -103,8 +112,33 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_action, profile& state_
       std::vector<double> iter_profit = config->get_profit(state_prof, iter);
       profile iter_nxtstat = config->get_next_state(state_prof, iter);		
       double min_b = -W[iter_nxtstat.index()*m + min_b_idx[i]];
-      double tmp = ((1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
-		    + config->beta()[i]*min_b) / config->beta()[i];
+      double tmp = ( (1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
+		     + config->beta()[i]*min_b ) / config->beta()[i];
+
+      //      if (tmp > W[state_prof.index()*m + min_b_idx[i]]) {
+      if (false) {      
+	std::cout << i << std::endl;
+	// std::cout << iter_profit[i] << '\t' << crnt_profit[i] << std::endl;
+	std::cout << "current  state: " << state_prof       << std::endl;
+	std::cout << "   iter  state: " << iter_nxtstat     << std::endl;
+	std::cout << "current profit: " << crnt_profit[i]   << std::endl;
+	std::cout << "   iter profit: " << iter_profit[i]   << std::endl;
+	std::cout << "current action: " << action_prof      << std::endl;
+	std::cout << "   iter action: " << iter             << std::endl;
+
+	std::cout << "current setup cost: " << dynamic_cast<FinTech*>(config)->get_setup_cost(state_prof, action_prof)[i]  << std::endl;
+	std::cout << "   iter setup cost: " << dynamic_cast<FinTech*>(config)->get_setup_cost(state_prof, iter)[i]  << std::endl;
+	std::cout << "  current quantity: " << dynamic_cast<FinTech*>(config)->get_quantity(action_prof)[i]  << std::endl;
+	std::cout << "     iter quantity: " << dynamic_cast<FinTech*>(config)->get_quantity(iter)[i]  << std::endl;
+	std::cout << " current unit cost: " << dynamic_cast<FinTech*>(config)->get_unitproduct_cost(action_prof)[i]  << std::endl;
+	std::cout << "    iter unit cost: " << dynamic_cast<FinTech*>(config)->get_unitproduct_cost(iter)[i]  << std::endl;
+
+	// std::cout << action_prof << '\n' << iter << std::endl;
+	std::cout << "tmp: " << tmp << std::endl;
+	std::cin.get();
+      }
+
+
       if (maxvalue < tmp) {
 	maxvalue = tmp;
       }
@@ -132,6 +166,23 @@ void alg::set_ub(std::vector<double>& b, func_prof& func_action, profile& state_
 
 void alg::solve() {
 
+  // store sub-gradients
+  std::stringstream ss;
+  ss << output_dir << "/gradient";
+  std::ofstream of(ss.str());
+  for (int i=0; i < m; i++) {
+    for (int j=0; j < n; j++) {
+#ifdef USE_FORTRAN_SOVLER
+      of << R[j*m+i] << '\t';
+#else
+      of << R[i*n+j] << '\t';
+#endif
+    }
+    of << '\n';
+  }
+  of.close();
+
+  
   // Get the functor of state profiles, used in looping
   auto func_state = config->get_state_func();
 
@@ -142,11 +193,11 @@ void alg::solve() {
   int loop_index = 0;
   while (true) {
 
-    #pragma omp parallel for num_threads(30)
     auto sp_all = func_state.get_all();
+    
+#pragma omp parallel for num_threads(num_thread_)
     for (int spidx = 0; spidx < func_state.card(); spidx++) {
       profile state_prof = sp_all[spidx];
-      
       // report progress
       if (state_prof.index()%10 == 0) {
 	std::cout << "progress : " << float(state_prof.index())/func_state.card() << std::endl;
@@ -154,7 +205,7 @@ void alg::solve() {
       
       // get the functor of actions, used for iteration
       func_prof func_action = config->get_action_func(state_prof);
-            
+      
       for (int i = 0; i<m ; i++) {
 	// allocate the solver, EACH PER THREAD
 	lp_solver linprog(n,m);
@@ -202,6 +253,11 @@ void alg::solve() {
 
 	  // store optimal value to wks
 	  if (status == lp_solver::INFEASIBLE) {
+	    std::cout << "[Infeasible]" << std::endl;
+	    debug_print(R.data(), m, n);
+	    for (int pidx = 0; pidx < n+m; pidx++) {
+	      std::cout << lb[pidx] << '\t' << ub[pidx] << std::endl;
+	    }
 	    (*iter_wks) = -std::numeric_limits<double>::infinity();
 	  } else {
 	    (*iter_wks) = -f;
@@ -257,22 +313,6 @@ void alg::solve() {
       W = W_new;
       continue;
     }
-  }
+  } // while()
 
-  // store sub-gradients
-  
-  std::stringstream ss;
-  ss << output_dir << "/gradient";
-  std::ofstream of(ss.str());
-  for (int i=0; i < m; i++) {
-    for (int j=0; j < n; j++) {
-#ifdef USE_FORTRAN_SOVLER
-      of << R[j*m+i] << '\t';
-#else
-      of << R[i*n+j] << '\t';
-#endif
-    }
-    of << '\n';
-  }
-  of.close();
-};
+} // solve()

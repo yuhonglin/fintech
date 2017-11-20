@@ -53,6 +53,8 @@ public:
   void set_ub(const std::vector<double>&, const int&);
 
   std::vector<profile> get_all();
+
+  bool operator==(const func_prof& fp) const;
 };
 
 #endif /* FUNCTOR_H */
