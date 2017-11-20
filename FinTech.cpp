@@ -14,7 +14,7 @@ profile FinTech::get_next_state(profile& s, profile& a) {
   for (int i=0; i<num_agent_; i++) {
     ret[i][0] = (1+delta1[i]) * (1-delta2[i]) * s[i][0] + a[i][0];
   }
-  func_state.round(ret);
+
   return ret;
 }
 
