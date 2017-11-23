@@ -36,7 +36,7 @@ alg::alg(model* mod) : n(mod->num_agent()),
   
   init_R();
 
-  num_thread_ = 18;
+  num_thread_ = 20;
 };
 
 
@@ -186,8 +186,8 @@ void alg::solve() {
   while (true) {
 
     auto sp_all = func_state.get_all();
-    
-#pragma omp parallel for num_threads(num_thread_)
+
+#pragma omp parallel for num_threads(num_thread_)    
     for (int spidx = 0; spidx < func_state.card(); spidx++) {
       profile state_prof = sp_all[spidx];
       // report progress
