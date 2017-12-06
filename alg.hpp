@@ -48,7 +48,8 @@ struct alg {
 
   void solve();
 
-  void save_grad();    
+  void save_grad();
+  void save_stat();      
 };
 
 

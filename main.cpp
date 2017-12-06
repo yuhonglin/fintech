@@ -14,52 +14,27 @@ int main(int argc, char *argv[])
 
 //  feenableexcept(-1 xor FE_INEXACT);
 
+  // //////////////
+  // // Fintech  //
+  // //////////////
+  
+  func_arry state({0.0}, {4.31}, {0.1});
 
-  //////////
-  // Test //
-  //////////
-  func_arry state({1.0}, {3.01}, {0.5});
-
-  func_arry act({1., 1., 1.},
-  		{2.1, 2.1, 2.1},
-  		{0.5, 0.5, 0.5});
-    
+  func_arry act({0., 0.0, 0.0},
+  		{1.21, 1.61, 1.61},
+  		{0.45, 0.8, 0.8});
+  
   FinTech mod;
   mod.set_num_agent(2)
      .set_num_normal(12)
      .set_func_action(func_prof({act, act}))
      .set_func_state(func_prof({state, state}))
      .set_beta({0.8, 0.8})
-     .set_init_constant(5);
+     .set_init_constant(0.3);
 
   alg a(&mod);
-  a.output_dir = "./test/";
+  a.output_dir = "./tmp/";
   a.solve();
-
-
-
-  // //////////////
-  // // Fintech  //
-  // //////////////
-  
-  // func_arry state({1.0}, {3.01}, {0.1});
-
-  // func_arry act({1., 1., 1.},
-  // 		{2.1, 2.1, 2.1},
-  // 		{0.5, 0.5, 0.5});
-    
-  // FinTech mod;
-  // mod.set_num_agent(2)
-  //    .set_num_normal(12)
-  //    .set_func_action(func_prof({act, act}))
-  //    .set_func_state(func_prof({state, state}))
-  //    .set_beta({0.8, 0.8})
-  //    .set_init_constant(100);
-
-  // alg a(&mod);
-  // a.output_dir = "./tmp/";
-  // a.solve();
-
 
   ////////////////////
   // Prison Dilemma //

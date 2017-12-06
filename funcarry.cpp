@@ -91,10 +91,10 @@ int func_arry::round(array& a) const {
   int idx = 0;
   for (int i=0; i<a.size(); i++) {
     if (a[i] < lb[i]) {
-      std::cout << "warning: < lb" << std::endl;
+      std::cout << "warning: < lb : " << a[i] << std::endl;
     }
     if (a[i] > ub_true[i]) {
-      std::cout << "warning: > ub" << std::endl;
+      std::cout << "warning: > ub : " << a[i] << std::endl;
     }
     int tmpidx = std::round((a[i]-lb[i])/stp[i]);
     double tmpval = lb[i] + tmpidx*stp[i];

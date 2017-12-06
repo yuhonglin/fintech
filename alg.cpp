@@ -36,7 +36,7 @@ alg::alg(model* mod) : n(mod->num_agent()),
   
   init_R();
 
-  num_thread_ = 20;
+  num_thread_ = 40;
 };
 
 
@@ -169,11 +169,25 @@ void alg::save_grad() {
   of.close();
 }
 
+void alg::save_stat() {
+  // store states and their index
+  // store sub-gradients
+  std::stringstream ss;
+  ss << output_dir << "/state_profile";
+  std::ofstream of(ss.str());
+  
+  auto func_state = config->get_state_func();
+  for(profile i = func_state.begin(); i!=func_state.end(); func_state.inc(i)) {
+    of << i << std::endl;
+  }
+  of.close();  
+}
 
 void alg::solve() {
 
-  // first, save the sub-gradients
+  // first, save the sub-gradients and states
   save_grad();
+  save_stat();
   
   // Get the functor of state profiles, used in looping
   auto func_state = config->get_state_func();
@@ -245,11 +259,11 @@ void alg::solve() {
 
 	  // store optimal value to wks
 	  if (status == lp_solver::INFEASIBLE) {
-	    std::cout << "[Infeasible]" << std::endl;
-	    debug_print(R.data(), m, n);
-	    for (int pidx = 0; pidx < n+m; pidx++) {
-	      std::cout << lb[pidx] << '\t' << ub[pidx] << std::endl;
-	    }
+	    // std::cout << "[Infeasible]" << std::endl;
+	    // debug_print(R.data(), m, n);
+	    // for (int pidx = 0; pidx < n+m; pidx++) {
+	      // std::cout << lb[pidx] << '\t' << ub[pidx] << std::endl;
+	    // }
 	    (*iter_wks) = -std::numeric_limits<double>::infinity();
 	  } else {
 	    (*iter_wks) = -f;
@@ -275,13 +289,13 @@ void alg::solve() {
     }  // for state_prof
 
     // test convergence
-    double normdiff = 0;
+    double maxdiff = -1;
     for (int convidx = 0; convidx < W.size(); convidx++) {
-      normdiff += std::abs(W[convidx] - W_new[convidx]);
+      if (maxdiff < std::abs(W[convidx] - W_new[convidx]))
+	maxdiff = std::abs(W[convidx] - W_new[convidx]);
     }
-    normdiff /= W.size();
 
-    std::cout << "difference: " <<  normdiff << std::endl;
+    std::cout << "maximum difference: " <<  maxdiff << std::endl;
 
     // store W_new
     loop_index++;
@@ -298,7 +312,7 @@ void alg::solve() {
     }
     of.close();
 	  
-    if (normdiff < 0.000001) {
+    if (maxdiff < 1e-12) {
       // converged
       break;
     } else {

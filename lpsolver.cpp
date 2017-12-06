@@ -20,38 +20,14 @@ lp_solver::lp_solver(int nn, int mm)
   for (int i=0; i<n+nclin; i++) {
     istate[i] = 0;
   }
+
+  // set init seed
+  srand(123);
 }
 
 void lp_solver::solve(double* c, double* A, // inputs
 		      double* lb, double* ub, int cold, // inputs
 		      double& obj, double* sol, STATUS& stat) /* outputs */ {
-  // output put the problem
-  // std::cout << "c = [";
-  // for (int i=0; i<n; i++) {
-  //   std::cout << c[i] << ',';
-  // }
-  // std::cout << "]\n";
-
-  // std::cout << "lb = [";
-  // for (int i=0; i<(n+nclin); i++) {
-  //   std::cout << lb[i] << ',';
-  // }
-  // std::cout << "]\n";
-
-  // std::cout << "ub = [";
-  // for (int i=0; i<(n+nclin); i++) {
-  //   std::cout << ub[i] << ',';
-  // }
-  // std::cout << "]\n";
-
-  // std::cout << "A = [\n";
-  // for (int i=0; i<nclin; i++) {
-  //     for (int j=0; j<n; j++) {
-  // 	std::cout << A[i+j*nclin] << ',';
-  //     }
-  //     std::cout << std::endl;
-  // }
-  // std::cout << "]\n";
 
 #define USE_LSSOL
 #ifdef USE_LSSOL
@@ -66,8 +42,42 @@ void lp_solver::solve(double* c, double* A, // inputs
     obj = std::numeric_limits<double>::quiet_NaN();
   } else if (inform <= 1) {
     stat = SUCCESS;
+  } else if (inform == 4) {
+    // exceeds maximum iteration
+    // shift the problem a bit
+    std::cout << "inform = " << inform << ", maxiter reached" << std::endl;
+    stat = ERROR;    
   } else {
     std::cout << "inform = " << inform << std::endl;
+
+    // // output put the problem
+    // std::cout << "c = [";
+    // for (int i=0; i<n; i++) {
+    //   std::cout << c[i] << ',';
+    // }
+    // std::cout << "]\n";
+
+    // std::cout << "lb = [";
+    // for (int i=0; i<(n+nclin); i++) {
+    //   std::cout << lb[i] << ',';
+    // }
+    // std::cout << "]\n";
+
+    // std::cout << "ub = [";
+    // for (int i=0; i<(n+nclin); i++) {
+    //   std::cout << ub[i] << ',';
+    // }
+    // std::cout << "]\n";
+
+    // std::cout << "A = [\n";
+    // for (int i=0; i<nclin; i++) {
+    //   for (int j=0; j<n; j++) {
+    // 	std::cout << A[i+j*nclin] << ',';
+    //   }
+    //   std::cout << std::endl;
+    // }
+    // std::cout << "]\n";
+    
     stat = ERROR;
   }
 

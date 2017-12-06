@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 #include "array.hpp"
 #include "profile.hpp"
@@ -25,7 +26,7 @@ protected:
   
   // discount factor for each firm;
   std::vector<double> beta_;
-
+  
 public:  
   // return the law-of-motion of states.
   virtual profile get_next_state(profile& s, profile& a) = 0;
@@ -49,6 +50,7 @@ public:
   model& set_init_constant(const double& c);
   model& set_func_state(const func_prof& fs);
   model& set_func_action(const func_prof& fa);
+
   
 };
 

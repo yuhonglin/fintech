@@ -37,7 +37,7 @@ namespace std {
       for (unsigned int j=0; j<p[i].size(); j++) {
 	o << p[i][j] << ',';
       };
-      cout << " | ";
+      o << " | ";
     };
     return o;
   }
