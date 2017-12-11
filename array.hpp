@@ -5,7 +5,7 @@
 #include <iostream>
 
 struct array {
-private:
+public:
   std::vector<double> value;
   int index_;
 public:

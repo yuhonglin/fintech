@@ -2,6 +2,9 @@
 
 
 profile::profile() : value(0), index_(-1) {}
+
+profile::profile(const int& s) : value(s), index_(-1) {}
+
 std::vector<double>::size_type profile::size() { return value.size(); }
 
 array& profile::operator[](const int i) {

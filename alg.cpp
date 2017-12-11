@@ -1,6 +1,7 @@
 #include <limits>
 #include <sstream>
 #include <cmath>
+#include <iomanip>
 
 #include <omp.h>
 
@@ -89,8 +90,8 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_
     func_action.reset(iter, i);
     double maxvalue = -std::numeric_limits<double>::infinity();
     for ( ; iter!=func_action.end(); func_action.inc_only(iter,i) ) {
-      if (iter == action_prof)
-	continue;
+      //if (iter == action_prof)
+      //continue;
       std::vector<double> iter_profit = config->get_profit(state_prof, iter);
       
       profile iter_nxtstat = config->get_next_state(state_prof, iter);       // Do NOT forget to round it!!!
@@ -99,30 +100,6 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_
       double min_b = -W[iter_nxtstat.index()*m + min_b_idx[i]];
       double tmp = ( (1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
 		     + config->beta()[i]*min_b ) / config->beta()[i];
-
-      //      if (tmp > W[state_prof.index()*m + min_b_idx[i]]) {
-      if (false) {      
-	std::cout << i << std::endl;
-	// std::cout << iter_profit[i] << '\t' << crnt_profit[i] << std::endl;
-	std::cout << "current  state: " << state_prof       << std::endl;
-	std::cout << "   iter  state: " << iter_nxtstat     << std::endl;
-	std::cout << "current profit: " << crnt_profit[i]   << std::endl;
-	std::cout << "   iter profit: " << iter_profit[i]   << std::endl;
-	std::cout << "current action: " << action_prof      << std::endl;
-	std::cout << "   iter action: " << iter             << std::endl;
-
-	std::cout << "current setup cost: " << dynamic_cast<FinTech*>(config)->get_setup_cost(state_prof, action_prof)[i]  << std::endl;
-	std::cout << "   iter setup cost: " << dynamic_cast<FinTech*>(config)->get_setup_cost(state_prof, iter)[i]  << std::endl;
-	std::cout << "  current quantity: " << dynamic_cast<FinTech*>(config)->get_quantity(action_prof)[i]  << std::endl;
-	std::cout << "     iter quantity: " << dynamic_cast<FinTech*>(config)->get_quantity(iter)[i]  << std::endl;
-	std::cout << " current unit cost: " << dynamic_cast<FinTech*>(config)->get_unitproduct_cost(action_prof)[i]  << std::endl;
-	std::cout << "    iter unit cost: " << dynamic_cast<FinTech*>(config)->get_unitproduct_cost(iter)[i]  << std::endl;
-
-	// std::cout << action_prof << '\n' << iter << std::endl;
-	std::cout << "tmp: " << tmp << std::endl;
-	std::cin.get();
-      }
-
 
       if (maxvalue < tmp) {
 	maxvalue = tmp;
@@ -195,7 +172,22 @@ void alg::solve() {
   // store the (working) constants
   std::vector<double> W(func_state.card()*m, init_w);
   std::vector<double> W_new(W);
+  
+  // store the continuation payoffs
+  // value: continuation payoff vectors for normals 1 to m for each firm
+  //        the vector can be viewed as a card(stateprof)xmxn tensor
+  //        
+  std::vector<double> cont_payoff(func_state.card()*m*n,
+				  std::numeric_limits<double>::quiet_NaN());
 
+  // store the current profit
+  std::vector<double> crnt_payoff(func_state.card()*m*n,
+				  std::numeric_limits<double>::quiet_NaN());
+  
+  // store the action profiles at equilibrium vertex
+  // value: a card(stateprof)xm tensor
+  std::vector<profile> equi_actprof(func_state.card()*m, n);
+  
   int loop_index = 0;
   while (true) {
 
@@ -211,7 +203,7 @@ void alg::solve() {
       
       // get the functor of actions, used for iteration
       func_prof func_action = config->get_action_func(state_prof);
-      
+
       for (int i = 0; i<m ; i++) {
 	// allocate the solver, EACH PER THREAD
 	lp_solver linprog(n,m);
@@ -221,7 +213,13 @@ void alg::solve() {
 	// For each state and normal, we need to update
 	// the correponding constant and store it to
 	// wks, a per-thread vector to avoid false sharing
-	std::vector<double> wks(func_action.card());
+	std::vector<double> wks(func_action.card(), 0.);
+	// and we have to track the action profile, current and continuation payoff
+	std::vector<profile> eap(func_action.card(), 0);
+	std::vector<double> crntpf(func_action.card()*n,
+				   std::numeric_limits<double>::quiet_NaN());
+	std::vector<double> contpf(func_action.card()*n,
+				   std::numeric_limits<double>::quiet_NaN());
 	
 	// the constraints
 	std::vector<double> A(m*n, 0.);
@@ -229,6 +227,9 @@ void alg::solve() {
 	std::vector<double> ub(n+m, 0.);
 	
 	auto iter_wks = wks.begin();
+	auto iter_eap = eap.begin();
+	auto iter_crntpf = crntpf.begin();
+	auto iter_contpf = contpf.begin();
 	for ( profile action_prof  = func_action.begin();
 	              action_prof != func_action.end();
 	              func_action.inc(action_prof) ) {
@@ -259,11 +260,6 @@ void alg::solve() {
 
 	  // store optimal value to wks
 	  if (status == lp_solver::INFEASIBLE) {
-	    // std::cout << "[Infeasible]" << std::endl;
-	    // debug_print(R.data(), m, n);
-	    // for (int pidx = 0; pidx < n+m; pidx++) {
-	      // std::cout << lb[pidx] << '\t' << ub[pidx] << std::endl;
-	    // }
 	    (*iter_wks) = -std::numeric_limits<double>::infinity();
 	  } else {
 	    (*iter_wks) = -f;
@@ -275,14 +271,35 @@ void alg::solve() {
 #else	    
 	    (*iter_wks) += (1-config->beta()[j])*r[j+i*n]*crnt_profit[j];
 #endif
+	    (*iter_crntpf) = crnt_profit[j]; iter_crntpf++;
+	    (*iter_contpf) = x[j]; iter_contpf++;
 	  }
 	  iter_wks++;
+
+	  (*iter_eap) = action_prof;
+	  iter_eap++;
 	  
 	} // for action_prof
 	
-	// find the maximum of wks
-	W_new[state_prof.index()*m+i] =
-	  (*std::max_element(wks.begin(), wks.end()));
+	// find the index of maximum value of wks
+	int optidx = 0;
+	double optwks = -std::numeric_limits<double>::infinity();
+	for (int oi = 0; oi < wks.size(); oi++) {
+	    if (optwks < wks[oi]-eps) {
+		optwks = wks[oi];
+		optidx = oi;
+	    }
+	}
+	W_new[state_prof.index()*m+i] = optwks;
+	equi_actprof[state_prof.index()*m+i] = eap[optidx];
+
+	for (int k=0; k<n; k++) {
+	    crnt_payoff[state_prof.index()*m*n + n*i + k] = crntpf[optidx*n + k];
+	    cont_payoff[state_prof.index()*m*n + n*i + k] = contpf[optidx*n + k];
+	}
+
+//	W_new[state_prof.index()*m+i] =
+//	  (*std::max_element(wks.begin(), wks.end()));
 	
       } // for i (normals)
       
@@ -298,24 +315,53 @@ void alg::solve() {
     std::cout << "maximum difference: " <<  maxdiff << std::endl;
 
     // store W_new
-    loop_index++;
-    std::stringstream ss;
-    ss << output_dir << "/data_" << loop_index;
-    std::ofstream of(ss.str());
-    int widx = 0;
-    for (int si =0; si < func_state.card(); si++) {
-      for (int sj=0; sj < m; sj++) {
-	of << W_new[widx] << '\t';
-	widx++;
-      }
-      of << '\n';
+    {
+	std::stringstream ss;
+	ss << output_dir << "/data_" << loop_index;
+	std::ofstream of(ss.str());
+	int widx = 0;
+	for (int si =0; si < func_state.card(); si++) {
+	    for (int sj=0; sj < m; sj++) {
+		of << W_new[widx] << '\t';
+		widx++;
+	    }
+	    of << '\n';
+	}
+	of.close();
     }
-    of.close();
-	  
+    // store continuation payoffs
+    {
+	std::stringstream ss;
+	ss << output_dir << "/contpayoff_" << loop_index;
+	std::ofstream of(ss.str());
+	for (auto &k : cont_payoff)
+	    of << k << '\n';
+	of.close();
+    }
+    // store current payoffs
+    {
+	std::stringstream ss;
+	ss << output_dir << "/currentoff_" << loop_index;
+	std::ofstream of(ss.str());
+	for (auto &k : crnt_payoff)
+	    of << k << '\n';
+	of.close();
+    }
+    // store equilibrium action profiles
+    {
+	std::stringstream ss;
+	ss << output_dir << "/equiactprof_" << loop_index;
+	std::ofstream of(ss.str());
+	for (auto &k : equi_actprof)
+	    of << k << '\n';
+	of.close();
+    }
+    
     if (maxdiff < 1e-12) {
       // converged
       break;
     } else {
+      loop_index++;
       W = W_new;
       continue;
     }

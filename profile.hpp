@@ -10,11 +10,12 @@
 
 struct profile
 {
-private:
+public:
   std::vector<array> value;
   int index_;
 public:
   profile();
+  profile(const int& s);
   std::vector<double>::size_type size();
   array& operator[](const int i);
   bool operator!=(const profile &b) const;

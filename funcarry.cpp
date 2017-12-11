@@ -4,10 +4,11 @@
 int func_arry::card_single(double l, const double& u, const double& s, double& ut) {
   int ret = 0;
   while(l <= u) {
+    ut = l;
     ret++;
     l += s;
   };
-  ut = l;
+  
   return ret;
 };
     

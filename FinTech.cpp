@@ -176,7 +176,7 @@ std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
   std::vector<double> ret(num_agent_);
   // profile next_state = get_next_state(s, a);
   for (int i=0; i<num_agent_; i++) {
-    ret[i] = std::pow(a[i][1],2) / 2 / (0.1+s[i][0]); //
+    ret[i] = std::pow(a[i][1],2) / 2 / (0.5+s[i][0]); //
    }
   return ret;
 }
@@ -190,7 +190,7 @@ std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
 }
 
 std::vector<double> FinTech::get_unitclientcapital_cost(profile &a) {
-  return std::vector<double>(num_agent_, 1.);
+  return std::vector<double>(num_agent_, .4);
 }
 
 std::vector<double> FinTech::get_clientcapital_incfactor(const profile &a) {

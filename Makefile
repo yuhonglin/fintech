@@ -1,8 +1,8 @@
 fortran_obj = $(patsubst %.f,%.o,$(wildcard *.f))
 cpp_obj = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-CXX = g++
-FC  = gfortran
+CXX = g++-mp-5
+FC  = gfortran-mp-5
 
 option = -O3 -lm -fopenmp
 

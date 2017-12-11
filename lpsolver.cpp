@@ -4,16 +4,19 @@
 
 #include "lpsolver.hpp"
 
+#define SAFE_PAD 100
+
 lp_solver::lp_solver(int nn, int mm)
-  : n(nn), nclin(mm), iw(new int[nn]), m(0),
-    leniw(nn), clamda(new double[nn+mm]), istate(new int[nn+mm]),
+  : n(nn), nclin(mm), iw(new int[nn+SAFE_PAD]), m(0),
+    leniw(nn), clamda(new double[nn+mm+SAFE_PAD]),
+    istate(new int[nn+mm+SAFE_PAD]),
     kx(new int[1]), R(new double[1]), b(new double[1]) {
 
   // allocate w
   if (n <= nclin)
-    lenw = 2*n*n+7*n+6*nclin;
+    lenw = 2*n*n+7*n+6*nclin + SAFE_PAD;
   else
-    lenw = 2*(nclin+1)*(nclin+1) + 7*n+6*nclin;
+    lenw = 2*(nclin+1)*(nclin+1) + 7*n+6*nclin + SAFE_PAD;
   w.reset(new double[lenw]);
 
   // set init value of istate
@@ -42,43 +45,48 @@ void lp_solver::solve(double* c, double* A, // inputs
     obj = std::numeric_limits<double>::quiet_NaN();
   } else if (inform <= 1) {
     stat = SUCCESS;
-  } else if (inform == 4) {
+  } else if (inform == 4 || inform == 5) {
     // exceeds maximum iteration
     // shift the problem a bit
-    std::cout << "inform = " << inform << ", maxiter reached" << std::endl;
-    stat = ERROR;    
+    // based on some test for such cases, MATLAB's linprog's error message is infeasible
+    // so here this error is treated as infeasible
+    // std::cout << "inform = " << inform
+    //   << ", maxiter reached, treated as infeasible" << std::endl;
+    // stat = ERROR;
+    stat = INFEASIBLE;
   } else {
     std::cout << "inform = " << inform << std::endl;
 
     // // output put the problem
-    // std::cout << "c = [";
-    // for (int i=0; i<n; i++) {
-    //   std::cout << c[i] << ',';
-    // }
-    // std::cout << "]\n";
+    std::cout << "c = [";
+    for (int i=0; i<n; i++) {
+      std::cout << c[i] << ',';
+    }
+    std::cout << "]\n";
 
-    // std::cout << "lb = [";
-    // for (int i=0; i<(n+nclin); i++) {
-    //   std::cout << lb[i] << ',';
-    // }
-    // std::cout << "]\n";
+    std::cout << "lb = [";
+    for (int i=0; i<(n+nclin); i++) {
+      std::cout << lb[i] << ',';
+    }
+    std::cout << "]\n";
 
-    // std::cout << "ub = [";
-    // for (int i=0; i<(n+nclin); i++) {
-    //   std::cout << ub[i] << ',';
-    // }
-    // std::cout << "]\n";
+    std::cout << "ub = [";
+    for (int i=0; i<(n+nclin); i++) {
+      std::cout << ub[i] << ',';
+    }
+    std::cout << "]\n";
 
-    // std::cout << "A = [\n";
-    // for (int i=0; i<nclin; i++) {
-    //   for (int j=0; j<n; j++) {
-    // 	std::cout << A[i+j*nclin] << ',';
-    //   }
-    //   std::cout << std::endl;
-    // }
-    // std::cout << "]\n";
+    std::cout << "A = [\n";
+    for (int i=0; i<nclin; i++) {
+      for (int j=0; j<n; j++) {
+    	std::cout << A[i+j*nclin] << ',';
+      }
+      std::cout << std::endl;
+    }
+    std::cout << "]\n";
     
-    stat = ERROR;
+     stat = ERROR;
+    //stat = INFEASIBLE;
   }
 
 #else

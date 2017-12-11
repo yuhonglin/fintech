@@ -12,26 +12,70 @@
 int main(int argc, char *argv[])
 {
 
+  
+  // func_arry state({0.0}, {4.31}, {0.1});
+
+  // func_arry act({0., 0.0, 0.0},
+  // 		{1.21, 1.61, 1.61},
+  // 		{0.25, 0.4, 0.4});
+
+  // func_prof fs({state, state});
+  // func_prof fa({act, act});
+
+  // FinTech mod;
+  // mod.set_num_agent(2)
+  //    .set_num_normal(12)
+  //    .set_func_action(func_prof({act, act}))
+  //    .set_func_state(func_prof({state, state}))
+  //    .set_beta({0.8, 0.8})
+  //    .set_init_constant(0.3);
+
+  // profile sp, ap;
+  // array s1, s2, a1, a2;
+  // a1.value = {0, 1.6, 0.8};
+  // a2.value = {0,   0, 0.8};  
+  // ap.value = {a1, a2};
+  // fa.round(ap);
+  // std::cout << ap << std::endl;
+
+  // s1.value = {3.9};
+  // s2.value = {4.3};
+  // sp.value = {s1, s2};
+  // fs.round(sp);
+  // std::cout << sp << std::endl;
+
+  // {
+  //   auto tmp = mod.get_next_state(sp, ap);
+  //   std::cout << tmp[0] << '\t' << tmp[1] << std::endl;
+  // }
+
+  // {
+  //   auto tmp = mod.get_quantity(ap);
+  //   std::cout << tmp[0] << '\t' << tmp[1] << std::endl;
+  // }
+
+  
+
 //  feenableexcept(-1 xor FE_INEXACT);
 
   // //////////////
   // // Fintech  //
   // //////////////
   
-  func_arry state({0.0}, {4.31}, {0.1});
+  func_arry state({0.0}, {4.501}, {0.1});
 
   func_arry act({0., 0.0, 0.0},
-  		{1.21, 1.61, 1.61},
-  		{0.45, 0.8, 0.8});
+  		{1.001, 1.61, 1.61},
+  		{0.2, 0.8, 0.8});
   
   FinTech mod;
   mod.set_num_agent(2)
-     .set_num_normal(12)
+     .set_num_normal(36)
      .set_func_action(func_prof({act, act}))
      .set_func_state(func_prof({state, state}))
      .set_beta({0.8, 0.8})
-     .set_init_constant(0.3);
-
+     .set_init_constant(1);
+  
   alg a(&mod);
   a.output_dir = "./tmp/";
   a.solve();
