@@ -37,7 +37,7 @@ alg::alg(model* mod) : n(mod->num_agent()),
   
   init_R();
 
-  num_thread_ = 20;
+  num_thread_ = 1;
 };
 
 
@@ -205,25 +205,35 @@ void alg::solve() {
       func_prof func_action = config->get_action_func(state_prof);
  
       // allocate the solver, EACH PER THREAD!!!
-      lp_solver linprog(n,m);     
+      lp_solver linprog(n,m);
       std::vector<double> c(n,0);   // objective
       std::vector<double> x(n,0);   // solution
 
       // For each state and normal, we need to update
       // the correponding constant and store it to
       // wks, a per-thread vector to avoid false sharing
-      std::map<int, std::vector<double>> nml_wks;
-      std::map<int, std::vector<profile>> nml_eap;
-      std::map<int, std::vector<double>> nml_crntpf;
-      std::map<int, std::vector<double>> nml_contpf;
+      std::vector<std::vector<double>>  nml_wks;
+      std::vector<std::vector<profile>> nml_eap;
+      std::vector<std::vector<double>>  nml_crntpf;
+      std::vector<std::vector<double>>  nml_contpf;
+
+      std::vector<std::vector<double> ::iterator> nml_iterwks;
+      std::vector<std::vector<profile>::iterator> nml_itereap;
+      std::vector<std::vector<double> ::iterator> nml_itercrntpf;  
+      std::vector<std::vector<double> ::iterator> nml_itercontpf;
       
       for (int tmpi = 0; tmpi<m ; tmpi++) {
-	nml_wks[tmpi]    = std::vector<double>(func_action.card(), 0.);
-	nml_eap[tmpi]    = std::vector<profile>(func_action.card(), 0);
-	nml_crntpf[tmpi] = std::vector<double>(func_action.card()*n,
-					       std::numeric_limits<double>::quiet_NaN());
-	nml_contpf[tmpi] = std::vector<double>(func_action.card()*n,
-					       std::numeric_limits<double>::quiet_NaN());
+	nml_wks.push_back( std::vector<double>(func_action.card(), 0.) );
+	nml_eap.push_back( std::vector<profile>(func_action.card(), 0) );
+	nml_crntpf.push_back( std::vector<double>(func_action.card()*n,
+						  std::numeric_limits<double>::quiet_NaN()) );
+	nml_contpf.push_back( std::vector<double>(func_action.card()*n,
+						  std::numeric_limits<double>::quiet_NaN()) );
+
+	nml_iterwks.push_back(nml_wks.back().begin());
+	nml_itereap.push_back(nml_eap.back().begin());   
+	nml_itercrntpf.push_back(nml_crntpf.back().begin());
+	nml_itercontpf.push_back(nml_contpf.back().begin());
       }
             
       // This loop should be out-side-of the normal loop because the constraints
@@ -233,7 +243,6 @@ void alg::solve() {
 	    action_prof != func_action.end();
 	    func_action.inc(action_prof) ) {      
 
-	
 	// the constraints
 	std::vector<double> lb(n+m, 0.);
 	std::vector<double> ub(n+m, 0.);
@@ -243,14 +252,14 @@ void alg::solve() {
 	// set the upper bounds of the constraints
 	set_ub(ub, func_state, func_action, state_prof, action_prof, W);
 
-
+	// do linear programming for each normal
 	for (int i = 0; i<m ; i++) {
 
-	  auto iter_wks    = nml_wks[i].begin();
-	  auto iter_eap    = nml_eap[i].begin();
-	  auto iter_crntpf = nml_crntpf[i].begin();
-	  auto iter_contpf = nml_contpf[i].begin();
-
+	  // pick up the previous iterators
+	  auto& iter_wks    = nml_iterwks[i];
+	  auto& iter_eap    = nml_itereap[i];
+	  auto& iter_crntpf = nml_itercrntpf[i];
+	  auto& iter_contpf = nml_itercontpf[i];
 
 	  // do the linear programming
 	  double f;
@@ -297,6 +306,8 @@ void alg::solve() {
 	
       } // for action_prof
 
+      
+      // figure out the maximums
       for (int i = 0; i < m; i++) {
 	std::vector<double> & wks    = nml_wks[i];
 	std::vector<profile>& eap    = nml_eap[i];
@@ -319,7 +330,8 @@ void alg::solve() {
 	  crnt_payoff[state_prof.index()*m*n + n*i + k] = crntpf[optidx*n + k];
 	  cont_payoff[state_prof.index()*m*n + n*i + k] = contpf[optidx*n + k];
 	}
-      }
+      } // for i (normals)
+      
     }  // for state_prof
 
     

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <string>
 #include <memory>
+#include <map>
 
 #include "array.hpp"
 #include "profile.hpp"
