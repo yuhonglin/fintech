@@ -37,7 +37,7 @@ alg::alg(model* mod) : n(mod->num_agent()),
   
   init_R();
 
-  num_thread_ = 40;
+  num_thread_ = 1;
 };
 
 
@@ -230,6 +230,9 @@ void alg::solve() {
 	auto iter_eap = eap.begin();
 	auto iter_crntpf = crntpf.begin();
 	auto iter_contpf = contpf.begin();
+	// TODO: this loop should be out-side-of the normal loop because the constraints
+	// do not deppend on normals, that is, the constraints do not change over different
+	// normals.
 	for ( profile action_prof  = func_action.begin();
 	              action_prof != func_action.end();
 	              func_action.inc(action_prof) ) {
@@ -289,7 +292,9 @@ void alg::solve() {
 		optwks = wks[oi];
 		optidx = oi;
 	    }
+	    std::cout << wks[oi] << std::endl;
 	}
+	exit(0);
 	W_new[state_prof.index()*m+i] = optwks;
 	equi_actprof[state_prof.index()*m+i] = eap[optidx];
 

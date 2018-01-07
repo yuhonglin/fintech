@@ -24,8 +24,6 @@ lp_solver::lp_solver(int nn, int mm)
     istate[i] = 0;
   }
 
-  // set init seed
-  srand(123);
 }
 
 void lp_solver::solve(double* c, double* A, // inputs
