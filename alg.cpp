@@ -203,50 +203,61 @@ void alg::solve() {
       
       // get the functor of actions, used for iteration
       func_prof func_action = config->get_action_func(state_prof);
+ 
+      // allocate the solver, EACH PER THREAD!!!
+      lp_solver linprog(n,m);     
+      std::vector<double> c(n,0);   // objective
+      std::vector<double> x(n,0);   // solution
 
-      for (int i = 0; i<m ; i++) {
-	// allocate the solver, EACH PER THREAD
-	lp_solver linprog(n,m);
-	std::vector<double> c(n,0);   // objective
-	std::vector<double> x(n,0);   // solution
-	
-	// For each state and normal, we need to update
-	// the correponding constant and store it to
-	// wks, a per-thread vector to avoid false sharing
-	std::vector<double> wks(func_action.card(), 0.);
-	// and we have to track the action profile, current and continuation payoff
-	std::vector<profile> eap(func_action.card(), 0);
-	std::vector<double> crntpf(func_action.card()*n,
-				   std::numeric_limits<double>::quiet_NaN());
-	std::vector<double> contpf(func_action.card()*n,
-				   std::numeric_limits<double>::quiet_NaN());
+      // For each state and normal, we need to update
+      // the correponding constant and store it to
+      // wks, a per-thread vector to avoid false sharing
+      std::map<int, std::vector<double>> nml_wks;
+      std::map<int, std::vector<profile>> nml_eap;
+      std::map<int, std::vector<double>> nml_crntpf;
+      std::map<int, std::vector<double>> nml_contpf;
+      
+      for (int tmpi = 0; tmpi<m ; tmpi++) {
+	nml_wks[tmpi]    = std::vector<double>(func_action.card(), 0.);
+	nml_eap[tmpi]    = std::vector<profile>(func_action.card(), 0);
+	nml_crntpf[tmpi] = std::vector<double>(func_action.card()*n,
+					       std::numeric_limits<double>::quiet_NaN());
+	nml_contpf[tmpi] = std::vector<double>(func_action.card()*n,
+					       std::numeric_limits<double>::quiet_NaN());
+      }
+            
+      // This loop should be out-side-of the normal loop because the constraints
+      // do not depend on normals, that is, the constraints do not change over different
+      // normals.
+      for ( profile action_prof  = func_action.begin();
+	    action_prof != func_action.end();
+	    func_action.inc(action_prof) ) {      
+
 	
 	// the constraints
-	std::vector<double> A(m*n, 0.);
 	std::vector<double> lb(n+m, 0.);
 	std::vector<double> ub(n+m, 0.);
 	
-	auto iter_wks = wks.begin();
-	auto iter_eap = eap.begin();
-	auto iter_crntpf = crntpf.begin();
-	auto iter_contpf = contpf.begin();
-	// TODO: this loop should be out-side-of the normal loop because the constraints
-	// do not deppend on normals, that is, the constraints do not change over different
-	// normals.
-	for ( profile action_prof  = func_action.begin();
-	              action_prof != func_action.end();
-	              func_action.inc(action_prof) ) {
-	  // set the lower bounds of the constraints
-	  set_lb(lb, func_state, func_action, state_prof, action_prof, W);
-	  // set the upper bounds of the constraints
-	  set_ub(ub, func_state, func_action, state_prof, action_prof, W);
-	  
+	// set the lower bounds of the constraints
+	set_lb(lb, func_state, func_action, state_prof, action_prof, W);
+	// set the upper bounds of the constraints
+	set_ub(ub, func_state, func_action, state_prof, action_prof, W);
+
+
+	for (int i = 0; i<m ; i++) {
+
+	  auto iter_wks    = nml_wks[i].begin();
+	  auto iter_eap    = nml_eap[i].begin();
+	  auto iter_crntpf = nml_crntpf[i].begin();
+	  auto iter_contpf = nml_contpf[i].begin();
+
+
 	  // do the linear programming
 	  double f;
 	  lp_solver::STATUS status;
 
-	  // process objective
-	  double *r = R.data();
+	  // process objective: TODO: this is a constant, should not generate it everytime.
+	  const double *r = R.data();
 	  
 #ifdef USE_FORTRAN_SOVLER	  
 	  for (int j=0; j<n; j++) c[j] = -config->beta()[j]*r[j*m+i];
@@ -282,34 +293,37 @@ void alg::solve() {
 	  (*iter_eap) = action_prof;
 	  iter_eap++;
 	  
-	} // for action_prof
+	} // for i (normals)
+	
+      } // for action_prof
+
+      for (int i = 0; i < m; i++) {
+	std::vector<double> & wks    = nml_wks[i];
+	std::vector<profile>& eap    = nml_eap[i];
+	std::vector<double> & crntpf = nml_crntpf[i];
+	std::vector<double> & contpf = nml_contpf[i];
 	
 	// find the index of maximum value of wks
 	int optidx = 0;
 	double optwks = -std::numeric_limits<double>::infinity();
 	for (int oi = 0; oi < wks.size(); oi++) {
-	    if (optwks < wks[oi]-eps) {
-		optwks = wks[oi];
-		optidx = oi;
-	    }
-	    std::cout << wks[oi] << std::endl;
+	  if (optwks < wks[oi]-eps) {
+	    optwks = wks[oi];
+	    optidx = oi;
+	  }
+	  std::cout << wks[oi] << std::endl;
 	}
-	exit(0);
 	W_new[state_prof.index()*m+i] = optwks;
 	equi_actprof[state_prof.index()*m+i] = eap[optidx];
 
 	for (int k=0; k<n; k++) {
-	    crnt_payoff[state_prof.index()*m*n + n*i + k] = crntpf[optidx*n + k];
-	    cont_payoff[state_prof.index()*m*n + n*i + k] = contpf[optidx*n + k];
+	  crnt_payoff[state_prof.index()*m*n + n*i + k] = crntpf[optidx*n + k];
+	  cont_payoff[state_prof.index()*m*n + n*i + k] = contpf[optidx*n + k];
 	}
-
-//	W_new[state_prof.index()*m+i] =
-//	  (*std::max_element(wks.begin(), wks.end()));
-	
-      } // for i (normals)
-      
+      }
     }  // for state_prof
 
+    
     // test convergence
     double maxdiff = -1;
     for (int convidx = 0; convidx < W.size(); convidx++) {
