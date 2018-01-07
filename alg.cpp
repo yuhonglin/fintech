@@ -37,7 +37,7 @@ alg::alg(model* mod) : n(mod->num_agent()),
   
   init_R();
 
-  num_thread_ = 1;
+  num_thread_ = 20;
 };
 
 
@@ -311,7 +311,6 @@ void alg::solve() {
 	    optwks = wks[oi];
 	    optidx = oi;
 	  }
-	  std::cout << wks[oi] << std::endl;
 	}
 	W_new[state_prof.index()*m+i] = optwks;
 	equi_actprof[state_prof.index()*m+i] = eap[optidx];
