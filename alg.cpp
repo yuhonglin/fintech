@@ -187,20 +187,25 @@ void alg::solve() {
   // store the action profiles at equilibrium vertex
   // value: a card(stateprof)xm tensor
   std::vector<profile> equi_actprof(func_state.card()*m, n);
-  
+
+  // TODO: After profiling, the computation time is mainly consumed by three functions
+  //       - set_lb()          : ~20%
+  //       - set_ub()          : ~10%
+  //       - lpsolver.solve()  : ~70%
   int loop_index = 0;
   while (true) {
-
+      
     auto sp_all = func_state.get_all();
 
 #pragma omp parallel for num_threads(num_thread_)    
     for (int spidx = 0; spidx < func_state.card(); spidx++) {
+
       profile state_prof = sp_all[spidx];
       // report progress
       if (state_prof.index()%10 == 0) {
 	std::cout << "progress : " << float(state_prof.index())/func_state.card() << std::endl;
       }
-      
+
       // get the functor of actions, used for iteration
       func_prof func_action = config->get_action_func(state_prof);
  
@@ -303,10 +308,8 @@ void alg::solve() {
 	  iter_eap++;
 	  
 	} // for i (normals)
-	
       } // for action_prof
 
-      
       // figure out the maximums
       for (int i = 0; i < m; i++) {
 	std::vector<double> & wks    = nml_wks[i];
@@ -331,10 +334,9 @@ void alg::solve() {
 	  cont_payoff[state_prof.index()*m*n + n*i + k] = contpf[optidx*n + k];
 	}
       } // for i (normals)
-      
+
     }  // for state_prof
 
-    
     // test convergence
     double maxdiff = -1;
     for (int convidx = 0; convidx < W.size(); convidx++) {
