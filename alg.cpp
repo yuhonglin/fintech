@@ -5,6 +5,7 @@
 
 #include <omp.h>
 
+#include "util.hpp"
 #include "alg.hpp"
 
 #include "FinTech.hpp"
@@ -194,12 +195,14 @@ void alg::solve() {
   //       - lpsolver.solve()  : ~70%
   int loop_index = 0;
   while (true) {
-      
+    
     auto sp_all = func_state.get_all();
 
 #pragma omp parallel for num_threads(num_thread_)    
     for (int spidx = 0; spidx < func_state.card(); spidx++) {
 
+      util::tic();
+      
       profile state_prof = sp_all[spidx];
       // report progress
       if (state_prof.index()%10 == 0) {
@@ -335,6 +338,8 @@ void alg::solve() {
 	}
       } // for i (normals)
 
+      util::toc();
+      exit(0);
     }  // for state_prof
 
     // test convergence

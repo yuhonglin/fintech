@@ -65,12 +65,12 @@ int main(int argc, char *argv[])
   func_arry state({0.0}, {4.501}, {0.1});
 
   func_arry act({0., 0.0, 0.0},
-  		{1.001, 1.61, 1.61},
-  		{0.2, 0.8, 0.8});
+  		{1.001, 1.001, 1.001},
+  		{0.2, 0.2, 0.2});
   
   FinTech mod;
   mod.set_num_agent(2)
-     .set_num_normal(36)
+     .set_num_normal(4)
      .set_func_action(func_prof({act, act}))
      .set_func_state(func_prof({state, state}))
      .set_beta({0.8, 0.8})
