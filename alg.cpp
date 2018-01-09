@@ -6,6 +6,7 @@
 #include <omp.h>
 
 #include "util.hpp"
+
 #include "alg.hpp"
 
 #include "FinTech.hpp"
@@ -28,7 +29,8 @@ void debug_print(double* d, int nrow, int ncol) {
 
 alg::alg(model* mod) : n(mod->num_agent()),
 		       init_w(mod->init_constant()),
-		       config(mod) {
+		       config(mod),
+		       cache(mod) {
   if (mod->num_normal() % 4 != 0) {
     m = std::round(mod->num_normal()/4)*4;
     std::cout << "warning: round number of normals to " << m << std::endl;
@@ -37,6 +39,8 @@ alg::alg(model* mod) : n(mod->num_agent()),
   m = mod->num_normal();
   
   init_R();
+
+  cache.build();
 
   num_thread_ = 1;
 };
@@ -91,8 +95,8 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_
     func_action.reset(iter, i);
     double maxvalue = -std::numeric_limits<double>::infinity();
     for ( ; iter!=func_action.end(); func_action.inc_only(iter,i) ) {
-      //if (iter == action_prof)
-      //continue;
+      ////if (iter == action_prof)
+      ////continue;
       std::vector<double> iter_profit = config->get_profit(state_prof, iter);
       
       profile iter_nxtstat = config->get_next_state(state_prof, iter);       // Do NOT forget to round it!!!
@@ -100,10 +104,10 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_
 
       double min_b = -W[iter_nxtstat.index()*m + min_b_idx[i]];
       double tmp = ( (1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
-		     + config->beta()[i]*min_b ) / config->beta()[i];
+      		     + config->beta()[i]*min_b ) / config->beta()[i];
 
       if (maxvalue < tmp) {
-	maxvalue = tmp;
+      	maxvalue = tmp;
       }
     }
     b[i] = maxvalue;
@@ -189,10 +193,6 @@ void alg::solve() {
   // value: a card(stateprof)xm tensor
   std::vector<profile> equi_actprof(func_state.card()*m, n);
 
-  // TODO: After profiling, the computation time is mainly consumed by three functions
-  //       - set_lb()          : ~20%
-  //       - set_ub()          : ~10%
-  //       - lpsolver.solve()  : ~70%
   int loop_index = 0;
   while (true) {
     
@@ -211,7 +211,7 @@ void alg::solve() {
 
       // get the functor of actions, used for iteration
       func_prof func_action = config->get_action_func(state_prof);
- 
+      
       // allocate the solver, EACH PER THREAD!!!
       lp_solver linprog(n,m);
       std::vector<double> c(n,0);   // objective
@@ -243,7 +243,7 @@ void alg::solve() {
 	nml_itercrntpf.push_back(nml_crntpf.back().begin());
 	nml_itercontpf.push_back(nml_contpf.back().begin());
       }
-            
+      
       // This loop should be out-side-of the normal loop because the constraints
       // do not depend on normals, that is, the constraints do not change over different
       // normals.

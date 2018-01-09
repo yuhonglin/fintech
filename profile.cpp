@@ -31,7 +31,7 @@ void profile::set_index(const int &i) { index_ = i; }
 
 void profile::push_back(const array &a) { value.push_back(a); }
 
-int profile::index() { return index_; }
+int profile::index() const { return index_; }
 
 namespace std {
   ostream& operator<< (ostream& o, ::profile& p) {

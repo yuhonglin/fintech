@@ -11,12 +11,14 @@
 #include <memory>
 #include <map>
 
+#include "modelcache.hpp"
 #include "array.hpp"
 #include "profile.hpp"
 #include "funcarry.hpp"
 #include "funcprof.hpp"
 #include "model.hpp"
 #include "lpsolver.hpp"
+
 
 struct alg {
   const double eps = 1e-12;
@@ -31,6 +33,7 @@ struct alg {
   std::vector<double> R;
   
   model* config; // observer
+  ModelCache cache;
 
   std::string output_dir;
   

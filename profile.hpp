@@ -24,7 +24,7 @@ public:
   int operator++(int);
   void set_index(const int &i);
   void push_back(const array &a);
-  int index();
+  int index() const;
 };
 
 namespace std {

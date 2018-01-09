@@ -3,11 +3,15 @@
 
 #include <fenv.h>
 
+#include "util.hpp"
+
+#include "modelcache.hpp"
 #include "model.hpp"
 #include "alg.hpp"
 #include "PrisonDilemma.hpp"
 #include "Oligopoly.hpp"
 #include "FinTech.hpp"
+
 
 int main(int argc, char *argv[])
 {
@@ -65,8 +69,8 @@ int main(int argc, char *argv[])
   func_arry state({0.0}, {4.501}, {0.1});
 
   func_arry act({0., 0.0, 0.0},
-  		{1.001, 1.001, 1.001},
-  		{0.2, 0.2, 0.2});
+  		{0.201, 0.201, 0.201},
+  		{0.1, 0.1, 0.1});
   
   FinTech mod;
   mod.set_num_agent(2)
@@ -75,10 +79,38 @@ int main(int argc, char *argv[])
      .set_func_state(func_prof({state, state}))
      .set_beta({0.8, 0.8})
      .set_init_constant(1);
+
   
-  alg a(&mod);
-  a.output_dir = "./tmp/";
-  a.solve();
+   alg a(&mod);
+   a.output_dir = "./tmp/";
+   a.solve();
+
+
+  // // test model cache
+  // ModelCache cache(&mod);
+  // util::tic();
+  // cache.build();
+  // util::toc();
+
+  // func_prof func_state({state, state});
+  // func_prof func_action({act, act});
+
+  // auto sp = func_state.begin() ; for (int i=0; i<19; i++) func_state.inc(sp);
+  // auto ap = func_action.begin(); for (int i=0; i<121; i++) func_action.inc(ap);
+
+  // std::cout << sp << std::endl;
+  // std::cout << ap << std::endl;
+  
+  // auto out = mod.get_next_state(sp, ap); func_state.round(out);
+  // std::cout << out << std::endl;
+  // out = cache.get_next_state(sp, ap);  
+  // std::cout << out << std::endl;
+
+  // auto prft = mod.get_profit(sp, ap);
+  // std::cout << prft[0] << '\t' << prft[1] << std::endl;
+  // auto cprft = cache.get_profit(sp, ap);
+  // std::cout << cprft[0] << '\t' << cprft[1] << std::endl;
+
 
   ////////////////////
   // Prison Dilemma //
