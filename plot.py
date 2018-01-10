@@ -225,52 +225,58 @@ def plot_last(idx):
     ax.legend([stateprofile_to_title(index_state[x]) for x in idx])
     ax.grid('on')
     
-    # dimy = 0.003
-    # dimx = [-0.009, 0.014]
-    # xshift = 0.002304
+    dimy = 0.003
+    dimx = [-0.009, 0.014]
+    xshift = 0.002304
     
-    # stateprof = index_state[idx[1]]
-    # tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
-    # tmp = ['(' + x.replace(', |', ')') for x in tmp]
-    # txt = '\n'.join(tmp)
-    # txt = 'Act Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    # ax.text(dimx[0], dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    stateprof = index_state[idx[1]]
+    tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
+    tmp = ['(' + x.replace(', |', ')') for x in tmp]
+    txt = '\n'.join(tmp)
+    txt = 'Act Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
+    ## ax.text(dimx[0], dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    print txt
 
-    # payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    # txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[0]])
-    # txt = 'Sta Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    # ax.text(dimx[0]+xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
+    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[0]])
+    txt = 'Sta Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
+    ## ax.text(dimx[0]+xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    print txt
 
-    # payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    # txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[1]])
-    # txt = 'Cont Profit ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    # ax.text(dimx[0]+2*xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
+    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[1]])
+    txt = 'Cont Profit ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
+    ## ax.text(dimx[0]+2*xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    print txt
 
-    # # ------------------------------
+    # ------------------------------
     
-    # stateprof = [[stateprof[0][0]], [stateprof[0][0]]]
-    # tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
-    # tmp = ['(' + x.replace(', |', ')') for x in tmp]
-    # txt = '\n'.join(tmp)
-    # txt = 'Act Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    # ax.text(dimx[1], dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    stateprof = [[stateprof[0][0]], [stateprof[0][0]]]
+    tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
+    tmp = ['(' + x.replace(', |', ')') for x in tmp]
+    txt = '\n'.join(tmp)
+    txt = 'Act Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
+    ## ax.text(dimx[1], dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    print txt
 
-    # payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    # txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[0]])
-    # txt = 'Sta Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    # ax.text(dimx[1]+xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
+    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[0]])
+    txt = 'Sta Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
+    ## ax.text(dimx[1]+xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    print txt
 
-    # payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    # txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[1]])
-    # txt = 'Cont Profit ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    # ax.text(dimx[1]+2*xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
+    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[1]])
+    txt = 'Cont Profit ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
+    ## ax.text(dimx[1]+2*xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
+    print txt
 
     
     ax.set_aspect('equal', 'box')
     ax.set_xlabel('Firm 1')
     ax.set_ylabel('Firm 2')
 #    fig.set_size_inches(16,16)
-#    plt.show()
+    plt.show()
     fig.savefig('./img/overlap_%s.pdf' % str(idx))
 
     

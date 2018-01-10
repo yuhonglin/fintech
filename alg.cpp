@@ -40,9 +40,11 @@ alg::alg(model* mod) : n(mod->num_agent()),
   
   init_R();
 
+  util::tic();
   cache.build();
+  util::toc();
 
-  num_thread_ = 1;
+  num_thread_ = 20;
 };
 
 
@@ -85,7 +87,7 @@ void alg::init_R() {
 void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
 		  profile& action_prof, std::vector<double>& W) {
   // get current profit
-  std::vector<double> crnt_profit = config->get_profit(state_prof, action_prof);
+  auto crnt_profit = cache.get_profit(state_prof, action_prof);
 
   profile iter;
   // CHECK: whether newly compute or use the previous one in the calling loop?
@@ -97,10 +99,9 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_
     for ( ; iter!=func_action.end(); func_action.inc_only(iter,i) ) {
       ////if (iter == action_prof)
       ////continue;
-      std::vector<double> iter_profit = config->get_profit(state_prof, iter);
+      auto iter_profit = cache.get_profit(state_prof, iter);
       
-      profile iter_nxtstat = config->get_next_state(state_prof, iter);       // Do NOT forget to round it!!!
-      func_state.round(iter_nxtstat);
+      auto iter_nxtstat = cache.get_next_state(state_prof, iter);
 
       double min_b = -W[iter_nxtstat.index()*m + min_b_idx[i]];
       double tmp = ( (1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
@@ -121,8 +122,7 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_
 void alg::set_ub(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
 		 profile& action_prof, std::vector<double>& W) {
   // figure out the next state profile
-  profile next_state = config->get_next_state(state_prof, action_prof); // // Do NOT forget to round it!!!
-  func_state.round(next_state);
+  auto next_state = cache.get_next_state(state_prof, action_prof);
   
   for (int i=n; i<n+m; i++) {
     b[i] = W[next_state.index()*m+i-n];
@@ -170,7 +170,7 @@ void alg::solve() {
   // first, save the sub-gradients and states
   save_grad();
   save_stat();
-  
+
   // Get the functor of state profiles, used in looping
   auto func_state = config->get_state_func();
 
@@ -197,11 +197,11 @@ void alg::solve() {
   while (true) {
     
     auto sp_all = func_state.get_all();
-
+    util::tic();
 #pragma omp parallel for num_threads(num_thread_)    
     for (int spidx = 0; spidx < func_state.card(); spidx++) {
 
-      util::tic();
+      
       
       profile state_prof = sp_all[spidx];
       // report progress
@@ -295,7 +295,7 @@ void alg::solve() {
 	  } else {
 	    (*iter_wks) = -f;
 	  }
-	  std::vector<double> crnt_profit = config->get_profit(state_prof, action_prof);
+	  auto crnt_profit = cache.get_profit(state_prof, action_prof);
 	  for (int j=0; j<n; j++) {
 #ifdef USE_FORTRAN_SOVLER
 	    (*iter_wks) += (1-config->beta()[j])*r[j*m+i]*crnt_profit[j];
@@ -338,9 +338,9 @@ void alg::solve() {
 	}
       } // for i (normals)
 
-      util::toc();
-      exit(0);
     }  // for state_prof
+
+    util::toc();
 
     // test convergence
     double maxdiff = -1;

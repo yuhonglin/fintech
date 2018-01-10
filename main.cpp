@@ -16,7 +16,6 @@
 int main(int argc, char *argv[])
 {
 
-  
   // func_arry state({0.0}, {4.31}, {0.1});
 
   // func_arry act({0., 0.0, 0.0},
@@ -62,19 +61,19 @@ int main(int argc, char *argv[])
 
 //  feenableexcept(-1 xor FE_INEXACT);
 
-  // //////////////
-  // // Fintech  //
-  // //////////////
+  // // //////////////
+  // // // Fintech  //
+  // // //////////////
   
-  func_arry state({0.0}, {4.501}, {0.1});
+  func_arry state({0.0}, {2.21}, {0.1});
 
   func_arry act({0., 0.0, 0.0},
-  		{0.201, 0.201, 0.201},
+  		{0.501, 0.501, 0.501},
   		{0.1, 0.1, 0.1});
   
   FinTech mod;
   mod.set_num_agent(2)
-     .set_num_normal(4)
+     .set_num_normal(36)
      .set_func_action(func_prof({act, act}))
      .set_func_state(func_prof({state, state}))
      .set_beta({0.8, 0.8})
@@ -136,9 +135,9 @@ int main(int argc, char *argv[])
   
 
 
-  // ///////////////
-  // // Oligopoly //
-  // ///////////////
+  ///////////////
+  // Oligopoly //
+  ///////////////
      
   // func_arry state({0.}, {3.01}, {1.0});
 
