@@ -1,6 +1,8 @@
 #ifndef MODELCACHE_H
 #define MODELCACHE_H
 
+//#define USE_MODEL_CACHE
+
 #include <iostream>
 #include <vector>
 
@@ -31,10 +33,18 @@ public:
   std::vector<std::vector<double>> profit;
   std::vector<std::vector<profile>> next_state;
 
+#ifdef USE_MODEL_CACHE
   profile& get_next_state(profile& sp, profile& ap);
+#else
+  profile get_next_state(profile& sp, profile& ap);
+#endif
 
+#ifdef USE_MODEL_CACHE
   double* get_profit(profile& sp, profile& ap);
-
+#else
+  std::vector<double> get_profit(profile& sp, profile& ap);
+#endif
+  
   void build();
   
 };

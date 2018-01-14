@@ -53,39 +53,41 @@ void lp_solver::solve(double* c, double* A, // inputs
     // stat = ERROR;
     stat = INFEASIBLE;
   } else {
-    std::cout << "inform = " << inform << std::endl;
-
-    // // output put the problem
-    std::cout << "c = [";
-    for (int i=0; i<n; i++) {
-      std::cout << c[i] << ',';
-    }
-    std::cout << "]\n";
-
-    std::cout << "lb = [";
-    for (int i=0; i<(n+nclin); i++) {
-      std::cout << lb[i] << ',';
-    }
-    std::cout << "]\n";
-
-    std::cout << "ub = [";
-    for (int i=0; i<(n+nclin); i++) {
-      std::cout << ub[i] << ',';
-    }
-    std::cout << "]\n";
-
-    std::cout << "A = [\n";
-    for (int i=0; i<nclin; i++) {
-      for (int j=0; j<n; j++) {
-    	std::cout << A[i+j*nclin] << ',';
-      }
-      std::cout << std::endl;
-    }
-    std::cout << "]\n";
-    
      stat = ERROR;
     //stat = INFEASIBLE;
   }
+
+  //   std::cout << "inform = " << inform << std::endl;
+
+  //   // // output put the problem
+  //   std::cout << "c = [";
+  //   for (int i=0; i<n; i++) {
+  //     std::cout << c[i] << ',';
+  //   }
+  //   std::cout << "]\n";
+
+  //   std::cout << "lb = [";
+  //   for (int i=0; i<(n+nclin); i++) {
+  //     std::cout << lb[i] << ',';
+  //   }
+  //   std::cout << "]\n";
+
+  //   std::cout << "ub = [";
+  //   for (int i=0; i<(n+nclin); i++) {
+  //     std::cout << ub[i] << ',';
+  //   }
+  //   std::cout << "]\n";
+
+  //   std::cout << "A = [\n";
+  //   for (int i=0; i<nclin; i++) {
+  //     for (int j=0; j<n; j++) {
+  //   	std::cout << A[i+j*nclin] << ',';
+  //     }
+  //     std::cout << std::endl;
+  //   }
+  //   std::cout << "]\n";
+
+  //   std::cin.get();
 
 #else
   if (nclin!=4) {
@@ -115,3 +117,4 @@ void lp_solver::solve(double* c, double* A, // inputs
 #endif
       
 }
+

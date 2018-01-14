@@ -190,7 +190,7 @@ std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
 }
 
 std::vector<double> FinTech::get_unitclientcapital_cost(profile &a) {
-  return std::vector<double>(num_agent_, .4);
+  return std::vector<double>(num_agent_, 1.);
 }
 
 std::vector<double> FinTech::get_clientcapital_incfactor(const profile &a) {

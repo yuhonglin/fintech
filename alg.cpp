@@ -5,6 +5,9 @@
 
 #include <omp.h>
 
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "util.hpp"
 
 #include "alg.hpp"
@@ -84,8 +87,9 @@ void alg::init_R() {
 }
 
 // set the lower bound
-void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
-		  profile& action_prof, std::vector<double>& W) {
+void alg::set_lb(std::vector<double>& b, func_prof& func_state,
+		 func_prof& func_action, profile& state_prof,
+		 profile& action_prof, std::vector<double>& W) {
   // get current profit
   auto crnt_profit = cache.get_profit(state_prof, action_prof);
 
@@ -119,7 +123,8 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state, func_prof& func_
 }
 
 // set upper bound
-void alg::set_ub(std::vector<double>& b, func_prof& func_state, func_prof& func_action, profile& state_prof,
+void alg::set_ub(std::vector<double>& b, func_prof& func_state,
+		 func_prof& func_action, profile& state_prof,
 		 profile& action_prof, std::vector<double>& W) {
   // figure out the next state profile
   auto next_state = cache.get_next_state(state_prof, action_prof);
@@ -167,17 +172,64 @@ void alg::save_stat() {
 
 void alg::solve() {
 
-  // first, save the sub-gradients and states
-  save_grad();
-  save_stat();
-
   // Get the functor of state profiles, used in looping
   auto func_state = config->get_state_func();
+
+  // loop index
+  int loop_index = 0;
 
   // store the (working) constants
   std::vector<double> W(func_state.card()*m, init_w);
   std::vector<double> W_new(W);
-  
+
+  // check if to recover
+  {
+    std::stringstream ss;
+    ss << output_dir << "/W_*";
+    auto g = util::glob(ss.str());
+
+    std::string cmd;
+    if (g.size()!=0) {
+      while(true) {
+	std::cout << "Existing progress detected, continue [Y/n]?";
+	std::getline(std::cin, cmd);
+	if (cmd == "" or cmd == "y")  cmd = "Y";
+	if (cmd == "n")               cmd = "N";
+	if (cmd != "Y" and cmd != "N")
+	  std::cout << "Please input Y or N." << std::endl;
+	else
+	  break;
+      }
+
+      if (cmd == "Y") {
+	std::string last_file;
+	int last_index = -1;
+	for (const auto& f : g) {
+	  auto tmp = util::split(f, '.');
+	  int idx = std::stoi(util::split(tmp[tmp.size()-2], '_')[1]);
+	  if (idx > last_index) {
+	    last_file = f;
+	    last_index = idx;
+	  }
+	}
+	std::cout << "loading the previous file : " << last_file << std::endl;
+	std::ifstream is(last_file, std::ios::binary);
+	cereal::BinaryInputArchive archive(is);
+	archive(W);
+	is.close();
+	
+	loop_index = last_index + 1;
+      } else {
+	save_grad();
+	save_stat();
+	loop_index = 0;
+      }
+    } else {
+      	save_grad();
+	save_stat();
+    }
+  }
+
   // store the continuation payoffs
   // value: continuation payoff vectors for normals 1 to m for each firm
   //        the vector can be viewed as a card(stateprof)xmxn tensor
@@ -193,17 +245,15 @@ void alg::solve() {
   // value: a card(stateprof)xm tensor
   std::vector<profile> equi_actprof(func_state.card()*m, n);
 
-  int loop_index = 0;
   while (true) {
     
     auto sp_all = func_state.get_all();
-    util::tic();
+
 #pragma omp parallel for num_threads(num_thread_)    
     for (int spidx = 0; spidx < func_state.card(); spidx++) {
 
-      
-      
       profile state_prof = sp_all[spidx];
+
       // report progress
       if (state_prof.index()%10 == 0) {
 	std::cout << "progress : " << float(state_prof.index())/func_state.card() << std::endl;
@@ -214,8 +264,6 @@ void alg::solve() {
       
       // allocate the solver, EACH PER THREAD!!!
       lp_solver linprog(n,m);
-      std::vector<double> c(n,0);   // objective
-      std::vector<double> x(n,0);   // solution
 
       // For each state and normal, we need to update
       // the correponding constant and store it to
@@ -263,6 +311,9 @@ void alg::solve() {
 	// do linear programming for each normal
 	for (int i = 0; i<m ; i++) {
 
+	  std::vector<double> c(n,0);   // objective
+	  std::vector<double> x(n,0);   // solution
+
 	  // pick up the previous iterators
 	  auto& iter_wks    = nml_iterwks[i];
 	  auto& iter_eap    = nml_itereap[i];
@@ -283,7 +334,7 @@ void alg::solve() {
 #endif
 	  
 	  linprog.solve(c.data(), R.data(), lb.data(), ub.data(), 0, f, x.data(), status);
-
+  
 	  if (status == lp_solver::ERROR) {
 	    std::cerr << "meet error in optimisation" << std::endl;
 	    exit(1);
@@ -295,7 +346,7 @@ void alg::solve() {
 	  } else {
 	    (*iter_wks) = -f;
 	  }
-	  auto crnt_profit = cache.get_profit(state_prof, action_prof);
+	  auto crnt_profit = cache.get_profit(state_prof, action_prof); // TODO: this may be moved out of this loop
 	  for (int j=0; j<n; j++) {
 #ifdef USE_FORTRAN_SOVLER
 	    (*iter_wks) += (1-config->beta()[j])*r[j*m+i]*crnt_profit[j];
@@ -305,15 +356,41 @@ void alg::solve() {
 	    (*iter_crntpf) = crnt_profit[j]; iter_crntpf++;
 	    (*iter_contpf) = x[j]; iter_contpf++;
 	  }
+
+
+	  // if (action_prof.index() == 486) {
+	  //   std::cout << *iter_wks << std::endl;
+	  //   auto crnt_profit = config->get_profit(state_prof, action_prof);
+	  //   std::cout << state_prof << std::endl;
+	  //   std::cout << action_prof << std::endl;
+	  //   std::cout << f << std::endl;
+	  //   for (int aa=0; aa<n; aa++) std::cout << crnt_profit[i] << '\t';
+	  //   exit(0);
+	  // }   
+
+	  
 	  iter_wks++;
 
 	  (*iter_eap) = action_prof;
 	  iter_eap++;
-	  
+
 	} // for i (normals)
       } // for action_prof
 
       // figure out the maximums
+
+      // {
+      // 	for (int i = 0; i < m; i++) {
+      // 	  std::stringstream ss;
+      // 	  ss << output_dir << "/wks_" << i;
+      // 	  std::ofstream of(ss.str());
+      // 	  for (auto& it : nml_wks[i]) of << it << std::endl;
+      // 	  of.close();
+      // 	}
+      // }
+      // exit(0);
+
+      
       for (int i = 0; i < m; i++) {
 	std::vector<double> & wks    = nml_wks[i];
 	std::vector<profile>& eap    = nml_eap[i];
@@ -340,8 +417,6 @@ void alg::solve() {
 
     }  // for state_prof
 
-    util::toc();
-
     // test convergence
     double maxdiff = -1;
     for (int convidx = 0; convidx < W.size(); convidx++) {
@@ -353,45 +428,57 @@ void alg::solve() {
 
     // store W_new
     {
-	std::stringstream ss;
-	ss << output_dir << "/data_" << loop_index;
-	std::ofstream of(ss.str());
-	int widx = 0;
-	for (int si =0; si < func_state.card(); si++) {
-	    for (int sj=0; sj < m; sj++) {
-		of << W_new[widx] << '\t';
-		widx++;
-	    }
-	    of << '\n';
-	}
-	of.close();
+      // store in plain text, for easily reading
+      {
+    	std::stringstream ss;
+    	ss << output_dir << "/data_" << loop_index;
+    	std::ofstream of(ss.str());
+    	int widx = 0;
+    	for (int si =0; si < func_state.card(); si++) {
+    	  for (int sj=0; sj < m; sj++) {
+    	    of << W_new[widx] << '\t';
+    	    widx++;
+    	  }
+    	  of << '\n';
+    	}
+    	of.close();
+      }
+      // store in cereal for progress recover
+      {
+    	std::stringstream ss;
+    	ss << output_dir << "/W_" << loop_index << ".cereal";
+    	std::ofstream of(ss.str());
+    	cereal::BinaryOutputArchive archive(of);
+    	archive(W_new);
+    	of.close();
+      }
     }
     // store continuation payoffs
     {
-	std::stringstream ss;
-	ss << output_dir << "/contpayoff_" << loop_index;
-	std::ofstream of(ss.str());
-	for (auto &k : cont_payoff)
-	    of << k << '\n';
-	of.close();
+    	std::stringstream ss;
+    	ss << output_dir << "/contpayoff_" << loop_index;
+    	std::ofstream of(ss.str());
+    	for (auto &k : cont_payoff)
+    	    of << k << '\n';
+    	of.close();
     }
     // store current payoffs
     {
-	std::stringstream ss;
-	ss << output_dir << "/currentoff_" << loop_index;
-	std::ofstream of(ss.str());
-	for (auto &k : crnt_payoff)
-	    of << k << '\n';
-	of.close();
+    	std::stringstream ss;
+    	ss << output_dir << "/currentoff_" << loop_index;
+    	std::ofstream of(ss.str());
+    	for (auto &k : crnt_payoff)
+    	    of << k << '\n';
+    	of.close();
     }
     // store equilibrium action profiles
     {
-	std::stringstream ss;
-	ss << output_dir << "/equiactprof_" << loop_index;
-	std::ofstream of(ss.str());
-	for (auto &k : equi_actprof)
-	    of << k << '\n';
-	of.close();
+    	std::stringstream ss;
+    	ss << output_dir << "/equiactprof_" << loop_index;
+    	std::ofstream of(ss.str());
+    	for (auto &k : equi_actprof)
+    	    of << k << '\n';
+    	of.close();
     }
     
     if (maxdiff < 1e-12) {

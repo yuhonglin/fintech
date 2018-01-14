@@ -1,10 +1,10 @@
 fortran_obj = $(patsubst %.f,%.o,$(wildcard *.f))
 cpp_obj = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-CXX = g++-5
-FC  = gfortran-5
+CXX = g++-6
+FC  = gfortran-6
 
-option = -O3 -lm -fopenmp
+option = -O3 -fopenmp
 
 %.o: %.f 
 	$(FC) $(option) -c $^ -o $@

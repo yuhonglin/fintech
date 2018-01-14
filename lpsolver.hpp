@@ -23,8 +23,8 @@ private:
   std::unique_ptr<double[]> R;
   std::unique_ptr<double[]> b;  
   int n;
-  int nclin;
   int m;
+  int nclin;
   int iter;
   int leniw;
   int lenw;

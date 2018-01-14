@@ -3,7 +3,7 @@ import glob
 import copy
 import numpy as np
 
-inputDir = "./tmp/"
+inputDir = "./hpctmp/"
 
 ## load data
 index_constant = []
@@ -131,7 +131,7 @@ def plot(index_to_plot, nskip = 0, title=''):
         ax.plot(x,y, linewidth=3)
     ax.set_title(stateprofile_to_title(index_state[index_to_plot]));
     ax.grid('on')
-    ax.set_aspect('equal', 'box')
+    # ax.set_aspect('equal', 'box')
     fig.savefig('./img/' + str(index_to_plot) + '.pdf')
     plt.show()
 
@@ -213,9 +213,9 @@ def onlyplot(index_to_plot, nskip = 0, title='', ax=None):
 
         p = ax.plot(x,y, linewidth=3)
 
-        if pow(max(x)-min(x),2) + pow(max(y)-min(y), 2) < 0.0000001:
+#        if pow(max(x)-min(x),2) + pow(max(y)-min(y), 2) < 0.0000001:
             ## a single point
-            ax.add_artist(plt.Circle((np.mean(x),np.mean(y)), 0.0005, color=p[0].get_color()))
+#            ax.add_artist(plt.Circle((np.mean(x),np.mean(y)), 0.0005, color=p[0].get_color()))
             
 
 def plot_last(idx):
@@ -278,11 +278,12 @@ def plot_last(idx):
 #    fig.set_size_inches(16,16)
     plt.show()
     fig.savefig('./img/overlap_%s.pdf' % str(idx))
-
     
 #for i in range(44):
 #    j = i/10.0
 #    plot_last_state_pair(j, 4.5)
     
-plot_last_state_pair(4.5, 1.2)
-plot_last_state_pair(4.5, 3.9)
+#plot_last_state_pair(4.5, 1.2)
+#plot_last_state_pair(4.5, 3.9)
+plot_last_state_pair(2.0, 0.0)
+plot(460, 100)

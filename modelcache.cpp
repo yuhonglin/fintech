@@ -3,15 +3,32 @@
 ModelCache::ModelCache(model* mod) : config(mod), func_state(mod->get_state_func()) {};
 
 
+
+#ifdef USE_MODEL_CACHE
 profile& ModelCache::get_next_state(profile& sp, profile& ap) {
   return next_state[sp.index()][ap.index()];
 }
+#else
+profile ModelCache::get_next_state(profile& sp, profile& ap) {
+  auto ret = config->get_next_state(sp, ap);
+  func_state.round(ret);
+  return ret;
+}  
+#endif
 
+
+#ifdef USE_MODEL_CACHE
 double* ModelCache::get_profit(profile& sp, profile& ap) {
   return profit[sp.index()].data() + ap.index()*config->num_agent();
 }
+#else
+std::vector<double> ModelCache::get_profit(profile& sp, profile& ap) {
+  return config->get_profit(sp, ap);
+}
+#endif
 
 void ModelCache::build() {
+#ifdef USE_MODEL_CACHE
   // empty and reserve the cache
   profit.clear(); profit.reserve(func_state.card());
   next_state.clear(); next_state.reserve(func_state.card());
@@ -30,6 +47,7 @@ void ModelCache::build() {
       next_state.back().push_back(nxtst);
     }
   }
+#endif
 }
 
 
