@@ -1,3 +1,6 @@
+#include <limits>
+#include <utility>
+
 #include "model.hpp"
 
 const int& model::num_agent() const {
@@ -44,4 +47,23 @@ model& model::set_func_state(const func_prof& fs) {
 model& model::set_func_action(const func_prof& fa) {
   func_action = fa;
   return *this;
+}
+
+std::pair<std::vector<double>, std::vector<double>>
+model::stage_profit_bound() {
+  std::pair<std::vector<double>, std::vector<double>>
+    ret(std::vector<double>(num_agent_, -std::numeric_limits<double>::infinity()),
+	std::vector<double>(num_agent_,  std::numeric_limits<double>::infinity()));
+  auto func_state = get_state_func();
+  for (profile sp = func_state.begin(); sp != func_state.end(); func_state.inc(sp)) {
+    func_prof func_action = get_action_func(sp);
+    for (profile ap = func_action.begin(); ap != func_state.end(); func_action.inc(ap)) {
+      auto prft = get_profit(sp, ap);
+      for (int i = 0; i < num_agent_; i++) {
+	if (prft[i] > ret.first[i])  ret.first[i] = prft[i];
+	if (prft[i] < ret.second[i]) ret.second[i] = prft[i];
+      }
+    }    
+  }
+  return ret;
 }

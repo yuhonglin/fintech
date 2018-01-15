@@ -2,6 +2,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <algorithm>
 
 #include <omp.h>
 
@@ -179,7 +180,9 @@ void alg::solve() {
   int loop_index = 0;
 
   // store the (working) constants
-  std::vector<double> W(func_state.card()*m, init_w);
+  std::vector<double> W(func_state.card()*m);
+  init_W(W);
+  
   std::vector<double> W_new(W);
 
   // check if to recover
@@ -357,18 +360,6 @@ void alg::solve() {
 	    (*iter_contpf) = x[j]; iter_contpf++;
 	  }
 
-
-	  // if (action_prof.index() == 486) {
-	  //   std::cout << *iter_wks << std::endl;
-	  //   auto crnt_profit = config->get_profit(state_prof, action_prof);
-	  //   std::cout << state_prof << std::endl;
-	  //   std::cout << action_prof << std::endl;
-	  //   std::cout << f << std::endl;
-	  //   for (int aa=0; aa<n; aa++) std::cout << crnt_profit[i] << '\t';
-	  //   exit(0);
-	  // }   
-
-	  
 	  iter_wks++;
 
 	  (*iter_eap) = action_prof;
@@ -379,18 +370,6 @@ void alg::solve() {
 
       // figure out the maximums
 
-      // {
-      // 	for (int i = 0; i < m; i++) {
-      // 	  std::stringstream ss;
-      // 	  ss << output_dir << "/wks_" << i;
-      // 	  std::ofstream of(ss.str());
-      // 	  for (auto& it : nml_wks[i]) of << it << std::endl;
-      // 	  of.close();
-      // 	}
-      // }
-      // exit(0);
-
-      
       for (int i = 0; i < m; i++) {
 	std::vector<double> & wks    = nml_wks[i];
 	std::vector<profile>& eap    = nml_eap[i];
@@ -416,7 +395,7 @@ void alg::solve() {
       } // for i (normals)
 
     }  // for state_prof
-
+    
     // test convergence
     double maxdiff = -1;
     for (int convidx = 0; convidx < W.size(); convidx++) {
@@ -471,6 +450,17 @@ void alg::solve() {
     	    of << k << '\n';
     	of.close();
     }
+
+
+    // test if monotonic
+    for (int i = 0; i < W.size()) {
+      if (W[i] < W_new[i] + eps) {
+   	std::cout << "Error: not monotonic." << std::endl;
+	exit(1);
+      }
+    }
+
+
     // store equilibrium action profiles
     {
     	std::stringstream ss;
@@ -492,3 +482,29 @@ void alg::solve() {
   } // while()
 
 } // solve()
+
+void alg::init_W(std::vector<double>& W) {
+  if (n!=2) {
+    std::cerr<< "only support n=2" << std::endl;
+    exit(1);
+  }
+  // The initalization method is:
+  //  - init the W corresponding to upper and lower bounds based on spb.
+  //  - init the other W to inf.
+  auto spb = cache.stage_profit_bound();
+  auto func_state = config->get_state_func();
+  
+  for (int i = 0; i < W.size(); i++) W[i] = std::numeric_limits<double>::infinity();
+  
+  for (auto state_prof = func_state.begin(); state_prof != func_state.end();
+       func_state.inc(state_prof)) {
+    // max profit for first player
+    W[state_prof.index()*m + 0] = spb.first[0];
+    // max profit for second player
+    W[state_prof.index()*m + m/4] = spb.first[1];
+    // min profit for first player
+    W[state_prof.index()*m + m/2] = -spb.second[0];
+    // min profit for second player
+    W[state_prof.index()*m + m/4*3] = -spb.second[1];
+  }
+}

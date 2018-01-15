@@ -54,7 +54,9 @@ struct alg {
   void solve();
 
   void save_grad();
-  void save_stat();      
+  void save_stat();
+
+  void init_W(std::vector<double>& W);
 };
 
 

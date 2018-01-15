@@ -3,7 +3,7 @@ import glob
 import copy
 import numpy as np
 
-inputDir = "./hpctmp/"
+inputDir = "./tmp/"
 
 ## load data
 index_constant = []
@@ -286,4 +286,4 @@ def plot_last(idx):
 #plot_last_state_pair(4.5, 1.2)
 #plot_last_state_pair(4.5, 3.9)
 plot_last_state_pair(2.0, 0.0)
-plot(460, 100)
+plot(45)

@@ -1,10 +1,11 @@
 #ifndef MODELCACHE_H
 #define MODELCACHE_H
 
-//#define USE_MODEL_CACHE
+#define USE_MODEL_CACHE
 
 #include <iostream>
 #include <vector>
+#include <utility>
 
 #include "array.hpp"
 #include "profile.hpp"
@@ -23,6 +24,11 @@ class ModelCache
 {
   func_prof func_state;
   model* config;
+
+#ifdef USE_MODEL_CACHE  
+  std::pair<std::vector<double>, std::vector<double>>
+  stage_profit_bound_;
+#endif
   
 public:
   ModelCache(model* mod);
@@ -46,6 +52,9 @@ public:
 #endif
   
   void build();
+  
+  std::pair<std::vector<double>, std::vector<double>>
+  stage_profit_bound();
   
 };
 

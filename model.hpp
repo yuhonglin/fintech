@@ -50,7 +50,10 @@ public:
   model& set_init_constant(const double& c);
   model& set_func_state(const func_prof& fs);
   model& set_func_action(const func_prof& fa);
-  
+
+  // helper functions
+  std::pair<std::vector<double>, std::vector<double>>
+  stage_profit_bound(); // return maximum possible stage profit for each player
 };
 
 

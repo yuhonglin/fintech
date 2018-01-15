@@ -85,12 +85,18 @@ int main(int argc, char *argv[])
   
   FinTech mod;
   mod.set_num_agent(2)
-     .set_num_normal(36)
-     .set_func_action(func_prof({act, act}))
-     .set_func_state(func_prof({state, state}))
-     .set_beta({0.8, 0.8})
-     .set_init_constant(1);
+    .set_num_normal(36)
+    .set_func_action(func_prof({act, act}))
+    .set_func_state(func_prof({state, state}))
+    .set_beta({0.8, 0.8});
 
+  // auto mp = mod.stage_profit_bound();
+  // std::cout << mp.first[0] << std::endl;
+  // std::cout << mp.first[1] << std::endl;
+  // std::cout << mp.second[0] << std::endl;
+  // std::cout << mp.second[1] << std::endl;
+  // exit(0);
+  
   // auto func_state = mod.get_state_func();
   // std::vector<double> W(func_state.card()*36, 0);
   // std::ifstream is("./tmp/data_102");
