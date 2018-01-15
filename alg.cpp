@@ -453,7 +453,7 @@ void alg::solve() {
 
 
     // test if monotonic
-    for (int i = 0; i < W.size()) {
+    for (int i = 0; i < W.size(); i++) {
       if (W[i] < W_new[i] + eps) {
    	std::cout << "Error: not monotonic." << std::endl;
 	exit(1);
