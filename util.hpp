@@ -11,8 +11,8 @@ class util {
 public:
   // profiling
   static std::stack<std::clock_t> _bnc_prof_tstart;
-  static void tic();
-  static void toc();
+  static void tic(string msg = "tic");
+  static void toc(string msg = "toc");
   
   // file system
   static std::vector<std::string> glob(const std::string& pat);
