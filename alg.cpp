@@ -494,17 +494,62 @@ void alg::init_W(std::vector<double>& W) {
   auto spb = cache.stage_profit_bound();
   auto func_state = config->get_state_func();
   
-  for (int i = 0; i < W.size(); i++) W[i] = std::numeric_limits<double>::infinity();
+  //for (int i = 0; i < W.size(); i++) W[i] = std::numeric_limits<double>::infinity();
   
   for (auto state_prof = func_state.begin(); state_prof != func_state.end();
        func_state.inc(state_prof)) {
+    double a,b;
     // max profit for first player
     W[state_prof.index()*m + 0] = spb.first[0];
+    //
+    for (int i = 1; i < m/4; i++) {
+#ifdef USE_FORTRAN_SOVLER
+      a = R[0*m + i];
+      b = R[1*m + i];
+#else
+      a = R[0 + m*i];
+      b = R[1 + m*i];
+#endif	
+      W[state_prof.index()*m + i] = a*spb.first[0] + b*spb.first[1];
+    }
     // max profit for second player
     W[state_prof.index()*m + m/4] = spb.first[1];
+    //
+    for (int i = m/4+1; i < m/2; i++) {
+#ifdef USE_FORTRAN_SOVLER
+      a = R[0*m + i];
+      b = R[1*m + i];
+#else
+      a = R[0 + m*i];
+      b = R[1 + m*i];
+#endif	
+      W[state_prof.index()*m + i] = a*spb.second[0] + b*spb.first[1];
+    }
     // min profit for first player
     W[state_prof.index()*m + m/2] = -spb.second[0];
+    //
+    for (int i = m/2+1; i < m/4*3; i++) {
+#ifdef USE_FORTRAN_SOVLER
+      a = R[0*m + i];
+      b = R[1*m + i];
+#else
+      a = R[0 + m*i];
+      b = R[1 + m*i];
+#endif	
+      W[state_prof.index()*m + i] = a*spb.second[0] + b*spb.second[1];
+    }
     // min profit for second player
     W[state_prof.index()*m + m/4*3] = -spb.second[1];
+    //
+    for (int i = m/4*3+1; i < m; i++) {
+#ifdef USE_FORTRAN_SOVLER
+      a = R[0*m + i];
+      b = R[1*m + i];
+#else
+      a = R[0 + m*i];
+      b = R[1 + m*i];
+#endif	
+      W[state_prof.index()*m + i] = a*spb.first[0] + b*spb.second[1];
+    }
   }
 }
