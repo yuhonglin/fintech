@@ -71,17 +71,17 @@ int main(int argc, char *argv[])
   // // // Fintech  //
   // // //////////////
   
-  //func_arry state({0.0}, {2.21}, {0.1});
-
-  //  func_arry act({0., 0.0, 0.0},
-  //  		{0.501, 0.501, 0.501},
-  //  		{0.1, 0.1, 0.1});
-
-  func_arry state({0.0}, {4.501}, {0.1});
+  func_arry state({0.0}, {2.21}, {0.1});
 
   func_arry act({0., 0.0, 0.0},
-		{1.001, 1.61, 1.61},
-		{0.2, 0.8, 0.8}); 
+   		{0.501, 0.501, 0.501},
+   		{0.1, 0.1, 0.1});
+
+  // func_arry state({0.0}, {4.501}, {0.1});
+
+  // func_arry act({0., 0.0, 0.0},
+  // 		{1.001, 1.61, 1.61},
+  // 		{0.2, 0.8, 0.8}); 
   
   FinTech mod;
   mod.set_num_agent(2)
@@ -90,31 +90,6 @@ int main(int argc, char *argv[])
     .set_func_state(func_prof({state, state}))
     .set_beta({0.8, 0.8});
 
-  // auto mp = mod.stage_profit_bound();
-  // std::cout << mp.first[0] << std::endl;
-  // std::cout << mp.first[1] << std::endl;
-  // std::cout << mp.second[0] << std::endl;
-  // std::cout << mp.second[1] << std::endl;
-  // exit(0);
-  
-  // auto func_state = mod.get_state_func();
-  // std::vector<double> W(func_state.card()*36, 0);
-  // std::ifstream is("./tmp/data_102");
-  // int widx = 0;
-  // for (int si =0; si < func_state.card(); si++) {
-  //   for (int sj=0; sj < 36; sj++) {
-  //     is >> W[widx];
-  //     W[widx] += 1e-8;
-  //     widx++;
-  //   }
-  // }
-  
-  // std::ofstream os("./tmp/W_102.cereal", std::ios::binary);
-  // cereal::BinaryOutputArchive archive(os);
-  // archive(W);
-  
-  // return 0;
-  
   alg a(&mod);
   a.output_dir = "./tmp/";
   a.solve();

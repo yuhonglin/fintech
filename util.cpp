@@ -7,12 +7,12 @@
   
 std::stack<std::clock_t> util::_bnc_prof_tstart;
 
-void util::tic() {
+void util::tic(std::string msg) {
   std::cout << msg << std::endl;
   _bnc_prof_tstart.push(clock());
 }
 
-void util::toc() {
+void util::toc(std::string msg) {
   std::clock_t tend = clock();
   std::cout << msg << ", costs cpu time: "
 	    << (static_cast<double>(tend-_bnc_prof_tstart.top())/CLOCKS_PER_SEC)

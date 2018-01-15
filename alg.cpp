@@ -44,9 +44,9 @@ alg::alg(model* mod) : n(mod->num_agent()),
   
   init_R();
 
-  util::tic();
+  util::tic("Building model cache");
   cache.build();
-  util::toc();
+  util::toc("Building model cache: done");
 
   num_thread_ = 20;
 };
