@@ -61,6 +61,13 @@ void ModelCache::build() {
       next_state.back().push_back(nxtst);
     }
   }
+
+  std::cout << "Maximum stage payoffs: ";
+  for (auto &i : stage_profit_bound_.first) std::cout << i << '\t';
+  std::cout << '\n';
+  std::cout << "Minimum stage payoffs: ";
+  for (auto &i : stage_profit_bound_.second) std::cout << i << '\t';
+  
 #endif
 }
 

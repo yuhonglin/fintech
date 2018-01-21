@@ -62,9 +62,7 @@ def get_all_cross(grads, ws, eps=1e-10):
 
 def sort_cross(cross):
     ret = []
-    
     cp = copy.deepcopy(cross)
-
     # find the one with lowest y value
     tmp = cp[0][1]
     lyi = 0
@@ -72,26 +70,22 @@ def sort_cross(cross):
         if cp[i][1] < tmp:
             lyi = i
             tmp = cp[i][1]
-
     ret.append(cp.pop(lyi))
-
     # compute the cos angle of all the other points
     cos_idx = []
     r1 = ret[0][0]; r2 = ret[0][1]
     for i, p in enumerate(cp):
         s1 = p[0]-r1; s2 = p[1]-r2
         nrm = pow(s1*s1+s2*s2,.5)
-        if nrm < 1e-10:
+        if nrm < 1e-8:
             continue
         cos_idx.append(( s1/nrm ,i))
-
     for _,i in sorted(cos_idx):
         ret.append(cp[i])
-        
     return ret
 
 
-def load_stateprofile(f = './tmp/state_profile'):
+def load_stateprofile(f = inputDir + '/state_profile'):
     ret = {}
     for l in open(f):
         ri, rs = l.split('\t')
@@ -285,5 +279,5 @@ def plot_last(idx):
     
 #plot_last_state_pair(4.5, 1.2)
 #plot_last_state_pair(4.5, 3.9)
-plot_last_state_pair(4.5, 0.0)
+plot_last_state_pair(1.5, 0.0)
 #plot(45, 20)

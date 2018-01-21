@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 #include <fenv.h>
 
@@ -17,6 +18,16 @@
 #include "PrisonDilemma.hpp"
 #include "Oligopoly.hpp"
 #include "FinTech.hpp"
+
+namespace std {
+  template <class T>
+  std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
+    for (int i = 0; i < v.size(); i++) {
+      os << v[i] << '\t';
+    }
+    return os;
+  }
+}
 
 
 int main(int argc, char *argv[])
@@ -71,17 +82,21 @@ int main(int argc, char *argv[])
   // // // Fintech  //
   // // //////////////
   
-  func_arry state({0.0}, {2.21}, {0.1});
-
-  func_arry act({0., 0.0, 0.0},
-   		{0.501, 0.501, 0.501},
-   		{0.1, 0.1, 0.1});
-
-  // func_arry state({0.0}, {4.501}, {0.1});
+  // func_arry state({0.0}, {2.701}, {0.1});
 
   // func_arry act({0., 0.0, 0.0},
-  // 		{1.001, 1.61, 1.61},
-  // 		{0.2, 0.8, 0.8}); 
+  //  		{0.601, 0.501, 0.501},
+  //  		{0.2, 0.1, 0.1});
+
+  
+  func_arry state({0.0}, {4.501}, {0.1});
+
+  func_arry act({0., 0.0, 0.0},
+  		{1.001, 1.61, 1.61},
+  		{0.2, 0.8, 0.8}); 
+
+
+
   
   FinTech mod;
   mod.set_num_agent(2)

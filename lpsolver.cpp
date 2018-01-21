@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 
+#include "util.hpp"
 #include "lpsolver.hpp"
 
 #define SAFE_PAD 100
@@ -41,53 +42,61 @@ void lp_solver::solve(double* c, double* A, // inputs
   if (inform == 3) {
     stat = INFEASIBLE;
     obj = std::numeric_limits<double>::quiet_NaN();
-  } else if (inform <= 1) {
+  } else if (inform == 0) {
     stat = SUCCESS;
+  } else if (inform == 1){
+    if (std::isnan(obj)) {
+      stat = INFEASIBLE;
+    } else {
+      stat = SUCCESS;
+    }
   } else if (inform == 4 || inform == 5) {
     // exceeds maximum iteration
     // shift the problem a bit
     // based on some test for such cases, MATLAB's linprog's error message is infeasible
     // so here this error is treated as infeasible
-    // std::cout << "inform = " << inform
-    //   << ", maxiter reached, treated as infeasible" << std::endl;
+    //  std::cout << "inform = " << inform
+    // 	       << ", maxiter reached, the problem is:" << std::endl;
+    // // // output put the problem
+    // std::cout << "c = [";
+    // for (int i=0; i<n; i++) {
+    //   std::cout << c[i] << ',';
+    // }
+    // std::cout << "]\n";
+
+    // std::cout << "lb = [";
+    // for (int i=0; i<(n+nclin); i++) {
+    //   std::cout << lb[i] << ',';
+    // }
+    // std::cout << "]\n";
+
+    // std::cout << "ub = [";
+    // for (int i=0; i<(n+nclin); i++) {
+    //   std::cout << ub[i] << ',';
+    // }
+    // std::cout << "]\n";
+
+    // std::cout << "A = [\n";
+    // for (int i=0; i<nclin; i++) {
+    //   for (int j=0; j<n; j++) {
+    // 	std::cout << A[i+j*nclin] << ',';
+    //   }
+    //   std::cout << std::endl;
+    // }
+    // std::cout << "]\n";
+
+    // util::dump(c , n, "mat/c");
+    // util::dump(lb, n+nclin, "mat/lb");
+    // util::dump(ub, n+nclin, "mat/ub");
+    // util::dump(A , n*nclin, "mat/A");
+    //     std::cin.get();
+
     // stat = ERROR;
     stat = INFEASIBLE;
   } else {
      stat = ERROR;
     //stat = INFEASIBLE;
   }
-
-  //   std::cout << "inform = " << inform << std::endl;
-
-  //   // // output put the problem
-  //   std::cout << "c = [";
-  //   for (int i=0; i<n; i++) {
-  //     std::cout << c[i] << ',';
-  //   }
-  //   std::cout << "]\n";
-
-  //   std::cout << "lb = [";
-  //   for (int i=0; i<(n+nclin); i++) {
-  //     std::cout << lb[i] << ',';
-  //   }
-  //   std::cout << "]\n";
-
-  //   std::cout << "ub = [";
-  //   for (int i=0; i<(n+nclin); i++) {
-  //     std::cout << ub[i] << ',';
-  //   }
-  //   std::cout << "]\n";
-
-  //   std::cout << "A = [\n";
-  //   for (int i=0; i<nclin; i++) {
-  //     for (int j=0; j<n; j++) {
-  //   	std::cout << A[i+j*nclin] << ',';
-  //     }
-  //     std::cout << std::endl;
-  //   }
-  //   std::cout << "]\n";
-
-  //   std::cin.get();
 
 #else
   if (nclin!=4) {

@@ -100,8 +100,9 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state,
   for (int i=0; i<n; i++) { // for each agent
     iter = action_prof;
     func_action.reset(iter, i);
+
     double maxvalue = -std::numeric_limits<double>::infinity();
-    for ( ; iter!=func_action.end(); func_action.inc_only(iter,i) ) {
+    for ( ; iter!=func_action.end(); func_action.inc_only(iter,i) ) {      
       ////if (iter == action_prof)
       ////continue;
       auto iter_profit = cache.get_profit(state_prof, iter);
@@ -112,6 +113,9 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state,
       double tmp = ( (1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
       		     + config->beta()[i]*min_b ) / config->beta()[i];
 
+      //      if (i==1)
+      //      std::cout << iter << '\t' << tmp << std::endl;
+      
       if (maxvalue < tmp) {
       	maxvalue = tmp;
       }
@@ -369,7 +373,6 @@ void alg::solve() {
       } // for action_prof
 
       // figure out the maximums
-
       for (int i = 0; i < m; i++) {
 	std::vector<double> & wks    = nml_wks[i];
 	std::vector<profile>& eap    = nml_eap[i];
@@ -380,7 +383,8 @@ void alg::solve() {
 	int optidx = 0;
 	double optwks = -std::numeric_limits<double>::infinity();
 	for (int oi = 0; oi < wks.size(); oi++) {
-	  if (optwks < wks[oi]-eps) {
+	  // if (optwks < wks[oi]-eps) {
+	  if (optwks < wks[oi]) {
 	    optwks = wks[oi];
 	    optidx = oi;
 	  }
@@ -456,7 +460,8 @@ void alg::solve() {
     for (int i = 0; i < W.size(); i++) {
       if (W[i] < W_new[i] - eps) {
    	std::cout << "Error: not monotonic." << std::endl;
-	exit(1);
+	std::cout << W[i] << '\t' << W_new[i] << '\t' << W[i] - W_new[i] << std::endl;
+	//	exit(1);
       }
     }
 

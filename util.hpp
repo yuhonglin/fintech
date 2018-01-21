@@ -5,7 +5,7 @@
 #include <ctime>
 #include <iostream>
 #include <string>
-
+#include <vector>
 
 class util {
 public:
@@ -21,6 +21,10 @@ public:
   template<typename Out>
   static void split(const std::string &s, char delim, Out result);
   static std::vector<std::string> split(const std::string &s, char delim);
+
+  // io
+  static void dump(std::vector<double>& v, const std::string& s);
+  static void dump(             double* v, int l, const std::string& s);
   
 };  // class util
 

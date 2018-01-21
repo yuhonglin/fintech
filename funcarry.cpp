@@ -98,6 +98,7 @@ int func_arry::round(array& a) const {
       std::cout << "warning: > ub : " << a[i] << std::endl;
     }
     int tmpidx = std::round((a[i]-lb[i])/stp[i]);
+    
     double tmpval = lb[i] + tmpidx*stp[i];
     if (tmpval > ub[i]) {
       a[i] = ub_true[i];

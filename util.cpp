@@ -1,5 +1,6 @@
 #include <vector>
 #include <sstream>
+#include <fstream>
 
 #include <glob.h>
 
@@ -46,4 +47,18 @@ std::vector<std::string> util::split(const std::string &s, char delim) {
     std::vector<std::string> elems;
     split(s, delim, std::back_inserter(elems));
     return elems;
+}
+
+void util::dump(std::vector<double>& v, const std::string& s) {
+  std::ofstream outfile;
+  outfile.open(s, std::ios::out | std::ios::binary);
+  outfile.write(reinterpret_cast<char*>(v.data()), v.size()*sizeof(double));
+  outfile.close();
+}
+
+void util::dump(double* v, int l, const std::string& s) {
+  std::ofstream outfile;
+  outfile.open(s, std::ios::out | std::ios::binary);
+  outfile.write(reinterpret_cast<char*>(v), l*sizeof(double));
+  outfile.close();
 }
