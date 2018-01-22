@@ -13,7 +13,7 @@ profile& ModelCache::get_next_state(profile& sp, profile& ap) {
 #else
 profile ModelCache::get_next_state(profile& sp, profile& ap) {
   auto ret = config->get_next_state(sp, ap);
-  func_state.round(ret);
+  func_state.update_index(ret);
   return ret;
 }  
 #endif

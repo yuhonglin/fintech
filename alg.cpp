@@ -113,9 +113,6 @@ void alg::set_lb(std::vector<double>& b, func_prof& func_state,
       double tmp = ( (1-config->beta()[i])*(iter_profit[i]-crnt_profit[i])
       		     + config->beta()[i]*min_b ) / config->beta()[i];
 
-      //      if (i==1)
-      //      std::cout << iter << '\t' << tmp << std::endl;
-      
       if (maxvalue < tmp) {
       	maxvalue = tmp;
       }

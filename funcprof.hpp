@@ -46,6 +46,10 @@ public:
   
   profile next(const profile& p) const;
 
+  // only update index
+  int update_index(profile& p) const ;
+  
+  // round both value and index
   int round(profile& p) const;
 
   func_arry& operator[] (const int &i);

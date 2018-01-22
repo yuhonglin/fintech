@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
-
+ 
 #include "array.hpp"
 
 struct func_arry {
@@ -41,6 +41,8 @@ public:
 
   int card() const;
 
+  int update_index(array& a) const;
+  
   int round(array& a) const;
 
   void set_ub(const double& u, const int& i);

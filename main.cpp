@@ -78,9 +78,9 @@ int main(int argc, char *argv[])
 
 //  feenableexcept(-1 xor FE_INEXACT);
 
-  // // //////////////
-  // // // Fintech  //
-  // // //////////////
+  // //////////////
+  // // Fintech  //
+  // //////////////
   
   // func_arry state({0.0}, {2.701}, {0.1});
 
@@ -89,25 +89,25 @@ int main(int argc, char *argv[])
   //  		{0.2, 0.1, 0.1});
 
   
-  func_arry state({0.0}, {4.501}, {0.1});
+  // func_arry state({0.0}, {4.501}, {0.1});
 
-  func_arry act({0., 0.0, 0.0},
-  		{1.001, 1.61, 1.61},
-  		{0.2, 0.8, 0.8}); 
+  // func_arry act({0., 0.0, 0.0},
+  // 		{1.001, 1.61, 1.61},
+  // 		{0.2, 0.8, 0.8}); 
 
 
 
   
-  FinTech mod;
-  mod.set_num_agent(2)
-    .set_num_normal(36)
-    .set_func_action(func_prof({act, act}))
-    .set_func_state(func_prof({state, state}))
-    .set_beta({0.8, 0.8});
+  // FinTech mod;
+  // mod.set_num_agent(2)
+  //   .set_num_normal(36)
+  //   .set_func_action(func_prof({act, act}))
+  //   .set_func_state(func_prof({state, state}))
+  //   .set_beta({0.8, 0.8});
 
-  alg a(&mod);
-  a.output_dir = "./tmp/";
-  a.solve();
+  // alg a(&mod);
+  // a.output_dir = "./tmp/";
+  // a.solve();
 
 
   // // test model cache
@@ -164,31 +164,31 @@ int main(int argc, char *argv[])
   // Oligopoly //
   ///////////////
      
-  // func_arry state({0.}, {3.01}, {1.0});
+  func_arry state({0.}, {3.01}, {1.0});
 
-  // func_arry act({0., 0.},
-  //  		{3.01, 3.01},
-  //  		{0.1, 1.0});
+  func_arry act({0., 0.},
+   		{3.01, 3.01},
+   		{0.1, 1.0});
     
-  // Oligopoly mod;
-  // mod.set_num_agent(2)
-  //   .set_num_normal(36)
-  //   .set_func_action(func_prof({act, act}))
-  //   .set_func_state(func_prof({state, state}))
-  //   .set_beta({0.8, 0.8})
-  //   .set_init_constant(18);
+  Oligopoly mod;
+  mod.set_num_agent(2)
+    .set_num_normal(36)
+    .set_func_action(func_prof({act, act}))
+    .set_func_state(func_prof({state, state}))
+    .set_beta({0.8, 0.8})
+    .set_init_constant(18);
 
-  // mod.c   = {0.9, 0.9};
-  // mod.cf  = 2.5;
-  // mod.cm  = 1.5;
-  // mod.ps  = 1.5;
-  // mod.rho = 3;
-  // mod.G   = 6;
-  // mod.g   = 0.3;
+  mod.c   = {0.9, 0.9};
+  mod.cf  = 2.5;
+  mod.cm  = 1.5;
+  mod.ps  = 1.5;
+  mod.rho = 3;
+  mod.G   = 6;
+  mod.g   = 0.3;
 
-  // alg a(&mod);
-  // a.output_dir = "./tmp/";
-  // a.solve();
+  alg a(&mod);
+  a.output_dir = "./tmp/";
+  a.solve();
 
 
   ////////////////

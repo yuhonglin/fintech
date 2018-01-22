@@ -144,17 +144,27 @@ std::vector<profile> func_prof::get_all() {
 
 
 int func_prof::round(profile& p) const {
-  //  std::cout << "----------------------" << std::endl;
-  //  std::cout << p << std::endl;
+
   int idx = 0;
   for (int i=0; i < p.size(); i++) {
     idx += arryfunc[i].round(p[i])*prod[i];
   }
   p.set_index(idx);
-  //  std::cout << p << std::endl;  
+
   return idx;
 }
 
+
+int func_prof::update_index(profile &p) const {
+  
+  int idx = 0;
+  for (int i=0; i < p.size(); i++) {
+    idx += arryfunc[i].update_index(p[i])*prod[i];
+  }
+  p.set_index(idx);
+
+  return idx;
+}
 
 bool func_prof::operator==(const func_prof& fp) const {
   return

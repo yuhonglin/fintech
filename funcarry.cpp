@@ -88,6 +88,30 @@ void func_arry::set_lb(const double& l, const int& i) {
 }
 
 
+int func_arry::update_index(array& a) const {
+  int idx = 0;
+  for (int i=0; i<a.size(); i++) {
+    if (a[i] < lb[i]) {
+      std::cout << "warning: < lb : " << a[i] << std::endl;
+    }
+    if (a[i] > ub_true[i]) {
+      std::cout << "warning: > ub : " << a[i] << std::endl;
+    }
+    int tmpidx = std::round((a[i]-lb[i])/stp[i]);
+    
+    double tmpval = lb[i] + tmpidx*stp[i];
+    if (tmpval > ub[i]) {
+      idx += prod[i]*card_each[i];
+    } else if (tmpval < lb[i]) {
+    } else {
+      idx += prod[i]*tmpidx;
+    }
+  }
+  a.set_index(idx);
+  return idx;
+}
+
+
 int func_arry::round(array& a) const {
   int idx = 0;
   for (int i=0; i<a.size(); i++) {

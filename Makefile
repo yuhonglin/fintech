@@ -6,14 +6,13 @@ FC  = gfortran-6
 
 option = -O3 -fopenmp
 
-%.o: %.f 
-	$(FC) $(option) -c $^ -o $@
+%.o: %.f Makefile
+	$(FC) $(option) -c $(word 1,$^) -o $@
 
-%.o: %.cpp %.hpp
+%.o: %.cpp %.hpp Makefile
 	$(CXX) $(option) -std=c++11 -c $(word 1,$^) -o $@
 
-
-run: $(fortran_obj) $(cpp_obj) 
+run: $(fortran_obj) $(cpp_obj)
 	$(CXX) $(option) -std=c++11 $^ -o $@ -lgfortran
 
 clean:
