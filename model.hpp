@@ -27,8 +27,11 @@ protected:
   // discount factor for each firm;
   std::vector<double> beta_;
   
-public:  
-  // return the law-of-motion of states.
+public:
+  ///////////////////////////////
+  // Main Interface of a Model //
+  ///////////////////////////////
+  // the law-of-motion of states.
   virtual profile get_next_state(profile& s, profile& a) = 0;
   // return the profit in a stage game.
   virtual std::vector<double> get_profit(profile& s, profile& a) = 0;
@@ -36,6 +39,8 @@ public:
   virtual func_prof get_action_func(profile& state) = 0;
   // return action functors
   virtual func_prof get_state_func() = 0;
+  // get whether to skip an action
+  virtual bool      if_skip(const profile& sp, const profile& ap);
 
   // getters
   const int&    num_agent() const;

@@ -1,2 +1,17 @@
 * Notes for this branch
-  It turns out, we should not round the values because this will leads to unnecessary inaccuracy.
+  This branch is based on our chat on Jan-19-2018.
+
+  The program/model has the following properties
+
+  1. Use "update_index()", not "round()".
+  2. Change the action of client capital from increments to choosing the exact client capital of next period. This will avoid the inaccuracy in state look-up (and rounding).
+  3. Remove the depreciation factor and set an upper bound on the possible client capital.
+  4. Make sure the action of quality > 0 when client capital >0: the firm must produce something when they enter the game.
+  5. The cost of choosing a different client capital is as follows,
+     5.1 If k == 0 and k' > 0: pay a entry cost. The total cost will be "client_capital_price*(k'-k) + entry cost"
+     5.2 If k == 0 and k' == 0: total cost=0
+     5.3 If k > 0 and k' > k: total cost = client_capital_price*(k'-k) + maintenance_cost*k.
+     5.4 If k > 0 and k > k' > 0: total cost = -sale_price*(k-k') + maintenance_cost*k'.
+     5.5 If k > 0 and k' == 0: obtain a scrap value. total cost = -sale_price*k - scrap value.
+  6. Make sure that if client capital is 0, the cost to produce a nonzero quality product is infinity.
+  7. Also, try to add a 0-profit constraint on actions, that is: enforce each firm must have nonnegative stage pay off at any stage.

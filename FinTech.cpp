@@ -143,34 +143,8 @@ std::vector<double> FinTech::get_quantity(profile& a) {
     }
   }
   
-  // if (a[0][1] < a[1][1]) {
-  //   ret[0] = F( (a[0][2]-a[1][2]) / (a[0][1]-a[1][1]) ) - F( a[0][2] / a[0][1] );
-  //   ret[1] = 1 - F( (a[0][2]-a[1][2]) / (a[0][1]-a[1][1]) );
-  // } else if (a[0][1] > a[1][1]) {
-  //   ret[0] = 1 - F( (a[0][2]-a[1][2]) / (a[0][1]-a[1][1]) );
-  //   ret[1] = F( (a[0][2]-a[1][2]) / (a[0][1]-a[1][1]) ) - F( a[1][2]/a[1][1] );
-  // } else {
-  //   // double tmp = 1 - F( a[0][2] / a[0][1] );
-  //   // ret[0] = .5*tmp;
-  //   // ret[1] = ret[0];
-  //   if (a[0][2] > a[1][2]) {
-  //     ret[0] = 0;
-  //     ret[1] = 1 - F( a[1][2] / a[1][1] );
-  //   } else if (a[0][2] < a[1][2]) {
-  //     ret[0] = 1 - F( a[0][2] / a[0][1] );
-  //     ret[1] = 0;
-  //   } else {
-  //     ret[0] = 0.5*( 1 - F( a[0][2] / a[0][1] ) );
-  //     ret[1] = ret[0];
-  //   }
-  // }
-
-    //  if (ret[0] < 0 || a[0][1] <= 0.) ret[0] = 0.;
-    //  if (ret[1] < 0 || a[1][1] <= 0.) ret[1] = 0.;
-  
   return ret;
 }
-
 
 std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
   std::vector<double> ret(num_agent_);
@@ -200,15 +174,3 @@ std::vector<double> FinTech::get_clientcapital_incfactor(const profile &a) {
 std::vector<double> FinTech::get_clientcapital_decfactor(const profile &s, const profile &a) {
   return std::vector<double>(num_agent_, .3);
 }
-
-// double FinTech::cc_decfactor() { return cc_decfactor_; }
-// double FinTech::cc_incfactor() { return cc_incfactor_; }
-// double FinTech::unit_cc_cost() { return unit_cc_cost_; }
-// double FinTech::unit_prod_cost_factor() { return unit_prod_cost_factor_; }
-
-// namespace std {
-//   ostream& operator<< (ostream& o, ::FinTech& a) {
-    
-//     return o;
-//   };
-// }

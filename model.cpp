@@ -67,3 +67,7 @@ model::stage_profit_bound() {
   }
   return ret;
 }
+
+bool model::if_skip(const profile &sp, const profile &act) {
+  return false;
+}

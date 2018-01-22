@@ -34,27 +34,29 @@ public:
   ModelCache(model* mod);
   virtual ~ModelCache() = default;
 
-  // std::vector<std::vector<double>> crnt_profit;
-  // std::vector<std::vector<double>> next_profit;
   std::vector<std::vector<double>> profit;
   std::vector<std::vector<profile>> next_state;
 
 #ifdef USE_MODEL_CACHE
-  profile& get_next_state(profile& sp, profile& ap);
+  profile& get_next_state(const profile& sp, const profile& ap);
 #else
-  profile get_next_state(profile& sp, profile& ap);
+  profile get_next_state(const profile& sp, const profile& ap);
 #endif
 
 #ifdef USE_MODEL_CACHE
-  double* get_profit(profile& sp, profile& ap);
+  double* get_profit(const profile& sp, const profile& ap);
 #else
-  std::vector<double> get_profit(profile& sp, profile& ap);
+  std::vector<double> get_profit(const profile& sp, const profile& ap);
 #endif
   
   void build();
   
   std::pair<std::vector<double>, std::vector<double>>
   stage_profit_bound();
+
+  // skipping some actions
+  std::vector<std::vector<bool>> if_skip_action_prof;
+  bool if_skip(const profile& sp, const profile& ap) const;
   
 };
 

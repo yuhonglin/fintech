@@ -303,6 +303,9 @@ void alg::solve() {
 	    action_prof != func_action.end();
 	    func_action.inc(action_prof) ) {      
 
+	// whether skip
+	if (cache.if_skip(state_prof, action_prof)) continue;
+	
 	// the constraints
 	std::vector<double> lb(n+m, 0.);
 	std::vector<double> ub(n+m, 0.);
