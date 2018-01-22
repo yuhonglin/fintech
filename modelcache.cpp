@@ -61,7 +61,7 @@ void ModelCache::build() {
       }
       
       auto nxtst = config->get_next_state(sp, ap);
-      func_state.round(nxtst);
+      func_state.update_index(nxtst);
       next_state.back().push_back(nxtst);
 
       if_skip_action_prof.back().push_back(config->if_skip(sp, ap)); 
