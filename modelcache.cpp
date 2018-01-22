@@ -92,7 +92,7 @@ ModelCache::stage_profit_bound() {
 
 #ifdef USE_MODEL_CACHE
 bool ModelCache::if_skip(const profile& sp, const profile &ap) const {
-  if_skip_action_prof[sp.index()][ap.index()];
+  return if_skip_action_prof[sp.index()][ap.index()];
 }
 #else
 bool ModelCache::if_skip(profile &ap) const {

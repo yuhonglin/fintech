@@ -82,58 +82,25 @@ int main(int argc, char *argv[])
   // // Fintech  //
   // //////////////
   
-  // func_arry state({0.0}, {2.701}, {0.1});
+  func_arry state({0.0}, {5.01}, {1.0});
 
-  // func_arry act({0., 0.0, 0.0},
-  //  		{0.601, 0.501, 0.501},
-  //  		{0.2, 0.1, 0.1});
-
-  
-  // func_arry state({0.0}, {4.501}, {0.1});
-
-  // func_arry act({0., 0.0, 0.0},
-  // 		{1.001, 1.61, 1.61},
-  // 		{0.2, 0.8, 0.8}); 
-
-
+  func_arry act({0., 0.0, 0.0},
+  		{5.01, 5.01, 5.01},
+  		{1., 1., 1.}); 
 
   
-  // FinTech mod;
-  // mod.set_num_agent(2)
-  //   .set_num_normal(36)
-  //   .set_func_action(func_prof({act, act}))
-  //   .set_func_state(func_prof({state, state}))
-  //   .set_beta({0.8, 0.8});
+  FinTech mod;
+  mod.set_num_agent(2)
+    .set_num_normal(36)
+    .set_func_action(func_prof({act, act}))
+    .set_func_state(func_prof({state, state}))
+    .set_beta({0.8, 0.8});
 
-  // alg a(&mod);
-  // a.output_dir = "./tmp/";
-  // a.solve();
+  alg a(&mod);
+  a.output_dir = "./tmp/";
+  a.solve();
 
 
-  // // test model cache
-  // ModelCache cache(&mod);
-  // util::tic();
-  // cache.build();
-  // util::toc();
-
-  // func_prof func_state({state, state});
-  // func_prof func_action({act, act});
-
-  // auto sp = func_state.begin() ; for (int i=0; i<19; i++) func_state.inc(sp);
-  // auto ap = func_action.begin(); for (int i=0; i<121; i++) func_action.inc(ap);
-
-  // std::cout << sp << std::endl;
-  // std::cout << ap << std::endl;
-  
-  // auto out = mod.get_next_state(sp, ap); func_state.round(out);
-  // std::cout << out << std::endl;
-  // out = cache.get_next_state(sp, ap);  
-  // std::cout << out << std::endl;
-
-  // auto prft = mod.get_profit(sp, ap);
-  // std::cout << prft[0] << '\t' << prft[1] << std::endl;
-  // auto cprft = cache.get_profit(sp, ap);
-  // std::cout << cprft[0] << '\t' << cprft[1] << std::endl;
 
 
   ////////////////////
@@ -164,31 +131,31 @@ int main(int argc, char *argv[])
   // Oligopoly //
   ///////////////
      
-  func_arry state({0.}, {3.01}, {1.0});
+  // func_arry state({0.}, {3.01}, {1.0});
 
-  func_arry act({0., 0.},
-   		{3.01, 3.01},
-   		{0.1, 1.0});
+  // func_arry act({0., 0.},
+  //  		{3.01, 3.01},
+  //  		{0.1, 1.0});
     
-  Oligopoly mod;
-  mod.set_num_agent(2)
-    .set_num_normal(36)
-    .set_func_action(func_prof({act, act}))
-    .set_func_state(func_prof({state, state}))
-    .set_beta({0.8, 0.8})
-    .set_init_constant(18);
+  // Oligopoly mod;
+  // mod.set_num_agent(2)
+  //   .set_num_normal(36)
+  //   .set_func_action(func_prof({act, act}))
+  //   .set_func_state(func_prof({state, state}))
+  //   .set_beta({0.8, 0.8})
+  //   .set_init_constant(18);
 
-  mod.c   = {0.9, 0.9};
-  mod.cf  = 2.5;
-  mod.cm  = 1.5;
-  mod.ps  = 1.5;
-  mod.rho = 3;
-  mod.G   = 6;
-  mod.g   = 0.3;
+  // mod.c   = {0.9, 0.9};
+  // mod.cf  = 2.5;
+  // mod.cm  = 1.5;
+  // mod.ps  = 1.5;
+  // mod.rho = 3;
+  // mod.G   = 6;
+  // mod.g   = 0.3;
 
-  alg a(&mod);
-  a.output_dir = "./tmp/";
-  a.solve();
+  // alg a(&mod);
+  // a.output_dir = "./tmp/";
+  // a.solve();
 
 
   ////////////////

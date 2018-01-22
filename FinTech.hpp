@@ -40,16 +40,7 @@ public:
 
   std::vector<double> get_unitproduct_cost(profile &a);
 
-  std::vector<double> get_unitclientcapital_cost(profile &a);
-
-  std::vector<double> get_clientcapital_incfactor(const profile &a);
-  
-  std::vector<double> get_clientcapital_decfactor(const profile &s, const profile &a);
-
-  // double get_cc_decfactor(); // 0.1
-  // double get_cc_incfactor(); // 0.3
-  // double get_unit_cc_cost(); // 1.
-  // double get_unit_prod_cost_factor(); // 0.1
+  std::vector<double> get_unitclientcapital_cost(profile& sp, profile &ap);
 
 };
 

@@ -301,11 +301,40 @@ void alg::solve() {
       // normals.
       for ( profile action_prof  = func_action.begin();
 	    action_prof != func_action.end();
-	    func_action.inc(action_prof) ) {      
+	    func_action.inc(action_prof) ) {
 
-	// whether skip
-	if (cache.if_skip(state_prof, action_prof)) continue;
-	
+	// filter the actions
+	if (cache.if_skip(state_prof, action_prof)) {
+	  std::cout << "skip" << std::endl;
+	  std::cout << state_prof.index() << std::endl;	  
+	  std::cout << action_prof.index() << std::endl;
+	  std::cout << cache.if_skip(state_prof, action_prof) << std::endl;
+	  exit(1);
+	  // Skip this action profile by setting this normals to -inf.
+	  // and profit to NaN.
+	  for (int i = 0; i<m ; i++) {
+	    // pick up the previous iterators
+	    auto& iter_wks    = nml_iterwks[i];
+	    auto& iter_eap    = nml_itereap[i];
+	    auto& iter_crntpf = nml_itercrntpf[i];
+	    auto& iter_contpf = nml_itercontpf[i];
+
+	    (*iter_wks) = -std::numeric_limits<double>::infinity();
+
+	    for (int j=0; j<n; j++) {
+	      (*iter_crntpf) = std::numeric_limits<double>::quiet_NaN(); iter_crntpf++;
+	      (*iter_contpf) = std::numeric_limits<double>::quiet_NaN(); iter_contpf++;
+	    }
+
+	    iter_wks++;
+
+	    (*iter_eap) = action_prof;
+	    iter_eap++;
+	  } // for i (normals)
+	  
+	  continue; // go to the next action profile
+	}
+
 	// the constraints
 	std::vector<double> lb(n+m, 0.);
 	std::vector<double> ub(n+m, 0.);

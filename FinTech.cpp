@@ -2,17 +2,10 @@
 
 // law of motion
 profile FinTech::get_next_state(profile& s, profile& a) {
-  if (num_agent_!=2) {
-    std::cerr << "Only support 2 agents" << std::endl;
-    exit(1);
-  }
-
-  auto delta1 = get_clientcapital_incfactor(a);
-  auto delta2 = get_clientcapital_decfactor(s,a);
+  auto ret = s;
   
-  profile ret = s;
   for (int i=0; i<num_agent_; i++) {
-    ret[i][0] = (1+delta1[i]) * (1-delta2[i]) * s[i][0] + a[i][0];
+    ret[i][0] = a[i][0];
   }
 
   return ret;
@@ -24,7 +17,7 @@ std::vector<double> FinTech::get_profit(profile& s, profile& a) {
   std::vector<double> ret(num_agent_);
   auto quantity  = get_quantity(a);
   auto unitcost  = get_unitproduct_cost(a);
-  auto cccost    = get_unitclientcapital_cost(a);
+  auto cccost    = get_unitclientcapital_cost(s,a);
   auto setupcost = get_setup_cost(s, a);
 
   for (int i=0; i<num_agent_; i++) {
@@ -60,10 +53,6 @@ double FinTech::F(const double &theta) {
 }
   
 std::vector<double> FinTech::get_quantity(profile& a) {
-  if (num_agent_!=2) {
-    std::cerr << "Only support 2 agents" << std::endl;
-    exit(1);
-  }
 
   std::vector<double> ret(2);
 
@@ -150,7 +139,10 @@ std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
   std::vector<double> ret(num_agent_);
   // profile next_state = get_next_state(s, a);
   for (int i=0; i<num_agent_; i++) {
-    ret[i] = std::pow(a[i][1],2) / 2 / (0.5+s[i][0]); //
+    if (s[i][0] != 0)
+      ret[i] = std::pow(a[i][1],2) / 2 / std::abs(s[i][0]); //
+    else
+      ret[i] = 30; // return a big number
    }
   return ret;
 }
@@ -163,14 +155,44 @@ std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
   return ret;
 }
 
-std::vector<double> FinTech::get_unitclientcapital_cost(profile &a) {
-  return std::vector<double>(num_agent_, 1.);
-}
+// 5.1 If k == 0 and k' > 0: pay an entry cost. The total cost will be
+//     "client_capital_price*(k'-k) + entry cost"
+// 5.2 If k == 0 and k' == 0: total cost=0
+// 5.3 If k > 0 and k' > k: total cost = client_capital_price*(k'-k) + maintenance_cost*k.
+// 5.4 If k > 0 and k > k' > 0: total cost = -sale_price*(k-k') + maintenance_cost*k'.
+// 5.5 If k > 0 and k' == 0: obtain a scrap value. total cost = -sale_price*k - scrap value.
+//
+// Currently, we set sale_price = 0;
+std::vector<double> FinTech::get_unitclientcapital_cost(profile& sp, profile &ap) {
+  std::vector<double> ret(num_agent_);
 
-std::vector<double> FinTech::get_clientcapital_incfactor(const profile &a) {
-  return std::vector<double>(num_agent_, .1);
-}
+  const double entry_cost                = 0.5;
+  const double client_capital_unit_price = 0.2;
+  const double maintenance_unit_cost     = 0.1;
+  const double scrap_value               = 0.3;
   
-std::vector<double> FinTech::get_clientcapital_decfactor(const profile &s, const profile &a) {
-  return std::vector<double>(num_agent_, .3);
+  for (int i = 0; i < num_agent_; i++) {
+    ret[i] = 0.;
+    
+    const double &k    = sp[i][0];
+    const double &nxtk = ap[i][0];
+
+    if (k == 0) {
+      if (nxtk > 0) {
+	ret[i] = entry_cost + client_capital_unit_price*nxtk;
+      } else {
+	ret[i] = 0.;
+      }
+    } else {
+      if (nxtk >= k) {
+	ret[i] = client_capital_unit_price*(nxtk-k) + maintenance_unit_cost*k;
+      } else if (k > nxtk and nxtk > 0) {
+	ret[i] = maintenance_unit_cost*nxtk;
+      } else {
+	ret[i] = - scrap_value;
+      }
+    }
+  }
+
+  return ret;
 }
