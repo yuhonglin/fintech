@@ -12,6 +12,9 @@ option = -O3 -fopenmp
 %.o: %.cpp %.hpp Makefile
 	$(CXX) $(option) -std=c++11 -c $(word 1,$^) -o $@
 
+%.o: %.cpp Makefile
+	$(CXX) $(option) -std=c++11 -c $(word 1,$^) -o $@
+
 run: $(fortran_obj) $(cpp_obj)
 	$(CXX) $(option) -std=c++11 $^ -o $@ -lgfortran
 

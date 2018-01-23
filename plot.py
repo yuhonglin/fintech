@@ -126,7 +126,7 @@ def plot(index_to_plot, nskip = 0, title=''):
     ax.set_title(stateprofile_to_title(index_state[index_to_plot]));
     ax.grid('on')
     # ax.set_aspect('equal', 'box')
-    fig.savefig('./img/' + str(index_to_plot) + '.pdf')
+    fig.savefig('./doc/img/' + str(index_to_plot) + '.pdf')
     plt.show()
 
 
@@ -225,53 +225,45 @@ def plot_last(idx):
     
     stateprof = index_state[idx[1]]
     tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
-    tmp = ['(' + x.replace(', |', ')') for x in tmp]
+    tmp = [str(i) + '\t(' + x.replace(', |', ')') for i,x in enumerate(tmp)]
     txt = '\n'.join(tmp)
-    txt = 'Act Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    ## ax.text(dimx[0], dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
-    print txt
+    fn = 'Action Profile ' + str((stateprof[0][0],stateprof[1][0]))
+    open('doc/txt/' + fn + '.txt', 'w').write(txt)
 
     payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[0]])
-    txt = 'Sta Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    ## ax.text(dimx[0]+xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
-    print txt
+    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[0])])
+    fn = 'Stage Profit ' + str((stateprof[0][0],stateprof[1][0]))
+    open('doc/txt/' + fn + '.txt', 'w').write(txt)
 
     payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[1]])
-    txt = 'Cont Profit ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    ## ax.text(dimx[0]+2*xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
-    print txt
+    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[1])])
+    fn = 'Continuation Profit ' + str((stateprof[0][0],stateprof[1][0]))
+    open('doc/txt/' + fn + '.txt', 'w').write(txt)
 
     # ------------------------------
     
     stateprof = [[stateprof[0][0]], [stateprof[0][0]]]
     tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
-    tmp = ['(' + x.replace(', |', ')') for x in tmp]
+    tmp = [str(i) + '\t(' + x.replace(', |', ')') for i, x in enumerate(tmp)]
     txt = '\n'.join(tmp)
-    txt = 'Act Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    ## ax.text(dimx[1], dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
-    print txt
+    fn = 'Action Profit ' + str((stateprof[0][0],stateprof[1][0]))
+    open('doc/txt/' + fn + '.txt', 'w').write(txt)
 
     payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[0]])
-    txt = 'Sta Prof ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    ## ax.text(dimx[1]+xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
-    print txt
+    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[0])])
+    fn = 'Stage Profit ' + str((stateprof[0][0],stateprof[1][0]))
+    open('doc/txt/' + fn + '.txt', 'w').write(txt)
 
     payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%0.5f,%0.5f' % (x[0], x[1]) for x in payoff[1]])
-    txt = 'Cont Profit ' + str((stateprof[0][0],stateprof[1][0])) + '\n' + txt
-    ## ax.text(dimx[1]+2*xshift, dimy,txt,bbox={'facecolor':'white', 'alpha':1, 'pad':10})
-    print txt
-
+    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[1])])
+    fn = 'Continuation Profit ' + str((stateprof[0][0],stateprof[1][0]))
+    open('doc/txt/' + fn + '.txt', 'w').write(txt)
     
     ax.set_aspect('equal', 'box')
     ax.set_xlabel('Firm 1')
     ax.set_ylabel('Firm 2')
-#    fig.set_size_inches(16,16)
     plt.show()
-    fig.savefig('./img/overlap_%s.pdf' % str(idx))
+    fig.savefig('./doc/img/overlap_%s.pdf' % '_'.join((str(x) for x in idx)) )
     
 #for i in range(44):
 #    j = i/10.0

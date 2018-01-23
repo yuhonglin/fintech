@@ -140,7 +140,7 @@ std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
   // profile next_state = get_next_state(s, a);
   for (int i=0; i<num_agent_; i++) {
     if (s[i][0] != 0)
-      ret[i] = std::pow(a[i][1],2) / 2 / std::abs(s[i][0]); //
+      ret[i] = std::pow(a[i][1],2) / 20 / std::abs(s[i][0]); //
     else
       ret[i] = 30; // return a big number
    }
@@ -150,7 +150,7 @@ std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
 std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
   std::vector<double> ret(num_agent_);
   for (int i=0; i<num_agent_; i++) {
-    ret[i] = .1*a[i][1];
+    ret[i] = .01*a[i][1];
   }
   return ret;
 }
@@ -166,10 +166,10 @@ std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
 std::vector<double> FinTech::get_unitclientcapital_cost(profile& sp, profile &ap) {
   std::vector<double> ret(num_agent_);
 
-  const double entry_cost                = 0.5;
-  const double client_capital_unit_price = 0.2;
-  const double maintenance_unit_cost     = 0.1;
-  const double scrap_value               = 0.3;
+  const double entry_cost                = 0.03;
+  const double client_capital_unit_price = 0.005;
+  const double maintenance_unit_cost     = 0.005;
+  const double scrap_value               = 0.01;
   
   for (int i = 0; i < num_agent_; i++) {
     ret[i] = 0.;

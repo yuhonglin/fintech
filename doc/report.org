@@ -1,0 +1,66 @@
+#+TITLE: Report
+#+AUTHOR:
+#+LATEX_HEADER: \usepackage[hyperref,x11names]{xcolor} 
+#+LATEX_HEADER: \usepackage{amsmath}
+
+
+
+* Check list
+  - [X] Do not round the state value to grids.
+  - [X] Change the action of buying client capital from increments to choosing the exact value.
+  - [X] Remove the depreciation factor and use an upper bound on the possible client capital.
+  - [ ] Make sure the action of quality > 0 when client capital >0: the firm must produce 
+        something when they are in the (have entered or being entering) the game.
+  - [X] Change the cost of choosing a client capital value,
+    - [X] If k == 0 and k' > 0: pay a entry cost. The total cost will be 
+          "client capital price*(k'-k) + entry cost"
+    - [X] If k == 0 and k' == 0: total cost=0
+    - [X] If k > 0 and k' > k: total cost = client capital price*(k'-k) + maintenance cost*k.
+    - [X] If k > 0 and k > k' > 0: total cost = -sale price*(k-k') + maintenance cost*k'.
+    - [X] If k > 0 and k' == 0: obtain a scrap value. total cost = -sale price*k - scrap value.
+  - [X] Make sure that if client capital is 0, the cost to produce a nonzero quality product 
+        is infinity. (Use 30 penalty as infinity)
+  - [ ] Also, try to add a 0-profit constraint on actions, that is: enforce each firm must 
+        have nonnegative stage pay off at any stage.
+
+* The Model
+** Basic parameters
+#+ATTR_LaTeX: :align |l|r|
+|---------------------------+-------|
+| Entry cost                |  0.03 |
+| Client capital unit price | 0.005 |
+| Maintenance unit cost     | 0.005 |
+| Scrap value               |  0.01 |
+| Unit production cost      |  0.01 |
+| Number of normals         |    36 |
+|---------------------------+-------|
+
+** Grids
+#+ATTR_LaTeX: :align |l|r|
+|--------------------------+-------|
+| State                    | 0:1:5 |
+| Action of client capital | 0:1:5 |
+| Action of quality        | 0:1:5 |
+| Action of price          | 0:1:5 |
+|--------------------------+-------|
+
+** Equations
+   - Setup cost 
+   \[ C_{s}=\begin{cases} \frac{w^2}{20a} & k > 0 \\ 30 & k=0 \end{cases}\]
+
+* Results
+  [[./img/overlap_0_5_30.pdf]] 
+
+  [[./img/overlap_21_18_3.pdf]]
+
+  [[./img/overlap_7_6_1.pdf]]
+
+  [[./img/overlap_7_11_31.pdf]]
+
+  [[./img/overlap_14_17_32.pdf]]
+
+  [[./img/overlap_21_23_33.pdf]]
+
+  [[./img/overlap_28_29_34.pdf]]
+
+
