@@ -56,79 +56,103 @@ std::vector<double> FinTech::get_quantity(profile& a) {
 
   std::vector<double> ret(2);
 
-  if (a[0][1] <= 0.) {
-    ret[0] = 0.;
-    if (a[1][1] <= 0.) {
-      ret[1] = 0.;
+  // Meaning of the variables:
+  //   a : client capital
+  //   w : quality
+  //   p : price
+  //   r : quantity (return)
+  //   Postscripts "1, 2" denote firm 1 and 2 respectively:
+  //
+  // Input:
+  //   a1 denotes the client capital of firm 1,
+  //   a2 denotes the client capital of firm 2,
+  //   w1 denotes the quality of firm 1,
+  //   w2 denotes the quality of firm 2,
+  //   p1 denotes the price of firm 1,
+  //   p2 denotes the price of firm 2,
+  //   
+  // Output:
+  //   r1 denotes the quantity of firm 1,
+  //   r2 denotes the quantity of firm 2.
+  
+  double& a1 = a[0][0]; double& a2 = a[1][0];
+  double& w1 = a[0][1]; double& w2 = a[1][1];
+  double& p1 = a[0][2]; double& p2 = a[1][2];
+  double& r1 = ret[0];  double& r2 = ret[1];
+  
+  if (w1 <= 0.) {
+    r1 = 0.;
+    if (w2 <= 0.) {
+      r2 = 0.;
       return ret;
     } else {
-      ret[1] = 1 - F( a[1][2] / a[1][1] );
+      r2 = 1 - F( p2 / w2 );
       return ret;
     }
-  } else if (a[1][1] <= 0.) {
-    ret[0] = 1 - F( a[0][2] / a[0][1] );
-    ret[1] = 0.;
+  } else if (w2 <= 0.) {
+    r1 = 1 - F( p1 / w1 );
+    r2 = 0.;
     return ret;
   }
 
-  double t1 = a[0][2] / a[0][1];
-  double t2 = a[1][2] / a[1][1];
-  double tm = (a[0][2]-a[1][2]) / (a[0][1]-a[1][1]);
+  double t1 = p1 / w1;
+  double t2 = p2 / w2;
+  double tm = (p1-p2) / (w1-w2);
 
-  if (a[0][1] < a[1][1]) {
+  if (w1 < w2) {
     if (tm <= t2) {
       // [t2,1] will buy firm 2
-      ret[1] = 1 - F(t2);
+      r2 = 1 - F(t2);
       if (t1 <= tm) {
 	// [t1,tm] will buy firm 1
-	ret[0] = F(tm) - F(t1);	
+	r1 = F(tm) - F(t1);	
       } else {
 	// no one buy firm 1
-	ret[0] = 0.;       
+	r1 = 0.;       
       }
     } else {
       // [tm,1] will buy firm 2
-      ret[1] = 1 - F(tm);
+      r2 = 1 - F(tm);
       if (t1 <= tm) {
 	// [t1,tm] will buy firm 1
-	ret[0] = F(tm) - F(t1);
+	r1 = F(tm) - F(t1);
       } else {
 	// no one buy firm 1
-	ret[0] = 0.;
+	r1 = 0.;
       }
     }
-  } else if (a[0][1] > a[1][1]) {
+  } else if (w1 > w2) {
     if (tm <= t1) {
       // [t1,1] will buy firm 1
-      ret[0] = 1 - F(t1);
+      r1 = 1 - F(t1);
       if (t2 <= tm) {
 	// [t2,tm] will buy firm 2
-	ret[1] = F(tm) - F(t2);
+	r2 = F(tm) - F(t2);
       } else {
 	// no one will buy firm 2
-	ret[1] = 0.;
+	r2 = 0.;
       }
     } else {
       // [tm,1] will buy firm 1
-      ret[0] = 1 - F(tm);
+      r1 = 1 - F(tm);
       if (t2 <= tm) {
 	// [t2,tm] will buy firm 2
-	ret[1] = F(tm) - F(t2);
+	r2 = F(tm) - F(t2);
       } else {
 	// no one will buy firm 2
-	ret[1] = 0.;
+	r2 = 0.;
       }
     }
   } else {
-    if (a[0][2] > a[1][2]) {
-      ret[0] = 0.;
-      ret[1] = 1 - F( t2 );
-    } else if (a[0][2] < a[1][2]) {
-      ret[0] = 1 - F( t1 );
-      ret[1] = 0.;
+    if (p1 > p2) {
+      r1 = 0.;
+      r2 = 1 - F( t2 );
+    } else if (p1 < p2) {
+      r1 = 1 - F( t1 );
+      r2 = 0.;
     } else {
-      ret[0] = 0.5*( 1 - F( t1 ) );
-      ret[1] = ret[0];
+      r1 = 0.5*( 1 - F( t1 ) );
+      r2 = r1;
     }
   }
   
@@ -139,10 +163,16 @@ std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
   std::vector<double> ret(num_agent_);
   // profile next_state = get_next_state(s, a);
   for (int i=0; i<num_agent_; i++) {
-    if (s[i][0] != 0)
+    if (a[i][1] == 0) {
+      ret[i] = 0;
+      continue;
+    }
+	
+    if (s[i][0] != 0) {
       ret[i] = std::pow(a[i][1],2) / 20 / std::abs(s[i][0]); //
-    else
-      ret[i] = 30; // return a big number
+    } else {
+      ret[i] = 30; // return a big number    
+    }
    }
   return ret;
 }
@@ -150,7 +180,7 @@ std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
 std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
   std::vector<double> ret(num_agent_);
   for (int i=0; i<num_agent_; i++) {
-    ret[i] = .01*a[i][1];
+    ret[i] = .1*a[i][1];
   }
   return ret;
 }
@@ -166,10 +196,10 @@ std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
 std::vector<double> FinTech::get_unitclientcapital_cost(profile& sp, profile &ap) {
   std::vector<double> ret(num_agent_);
 
-  const double entry_cost                = 0.03;
-  const double client_capital_unit_price = 0.005;
-  const double maintenance_unit_cost     = 0.005;
-  const double scrap_value               = 0.01;
+  const double entry_cost                = 0.3;
+  const double client_capital_unit_price = 0.1;
+  const double maintenance_unit_cost     = 0.1;
+  const double scrap_value               = 0.0;
   
   for (int i = 0; i < num_agent_; i++) {
     ret[i] = 0.;
@@ -196,3 +226,5 @@ std::vector<double> FinTech::get_unitclientcapital_cost(profile& sp, profile &ap
 
   return ret;
 }
+
+

@@ -1,4 +1,4 @@
-% Created 2018-01-23 Tue 10:57
+% Created 2018-02-06 Tue 15:09
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -90,10 +90,12 @@ Action of price & 0:1:5\\
 \begin{itemize}
 \item Setup cost
 \end{itemize}
-\[ C_{s}=\begin{cases} \frac{w^2}{20a} & k > 0 \\ 30 & k=0 \end{cases}\]
+\[ C_{s}=\begin{cases} 0 & w=0 \\ \frac{w^2}{20a} & w\ne0, k > 0 \\ 30 & w\ne0, k=0 \end{cases}\]
 
 \section{Results}
 \label{sec-3}
+\includegraphics[width=.9\linewidth]{./img/overlap_35_30_5.pdf}
+
 \includegraphics[width=.9\linewidth]{./img/overlap_0_5_30.pdf} 
 
 \includegraphics[width=.9\linewidth]{./img/overlap_21_18_3.pdf}

@@ -46,9 +46,11 @@
 
 ** Equations
    - Setup cost 
-   \[ C_{s}=\begin{cases} \frac{w^2}{20a} & k > 0 \\ 30 & k=0 \end{cases}\]
+   \[ C_{s}=\begin{cases} 0 & w=0 \\ \frac{w^2}{20a} & w\ne0, k > 0 \\ 30 & w\ne0, k=0 \end{cases}\]
 
 * Results
+  [[./img/overlap_35_30_5.pdf]]
+
   [[./img/overlap_0_5_30.pdf]] 
 
   [[./img/overlap_21_18_3.pdf]]

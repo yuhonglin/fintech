@@ -271,5 +271,14 @@ def plot_last(idx):
     
 #plot_last_state_pair(4.5, 1.2)
 #plot_last_state_pair(4.5, 3.9)
-plot_last_state_pair(1.5, 0.0)
+#plot_last_state_pair(1.5, 0.0)
 #plot(45, 20)
+
+plot_last_state_pair(0, 5)
+plot_last_state_pair(1, 5)
+plot_last_state_pair(2, 5)
+plot_last_state_pair(3, 5)
+plot_last_state_pair(4, 5)
+plot_last_state_pair(5,0)
+plot_last_state_pair(3,0)
+plot_last_state_pair(4,0)
