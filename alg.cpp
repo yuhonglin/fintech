@@ -438,6 +438,16 @@ void alg::solve() {
 
     std::cout << "maximum difference: " <<  maxdiff << std::endl;
 
+
+    // test if monotonic
+    for (int i = 0; i < W.size(); i++) {
+      if (W[i] < W_new[i] - eps) {
+   	std::cout << "Error: not monotonic." << std::endl;
+	std::cout << W[i] << '\t' << W_new[i] << '\t' << W[i] - W_new[i] << std::endl;
+	//	exit(1);
+      }
+    }
+    
     // store W_new
     {
       // store in plain text, for easily reading
@@ -482,16 +492,6 @@ void alg::solve() {
     	for (auto &k : crnt_payoff)
     	    of << k << '\n';
     	of.close();
-    }
-
-
-    // test if monotonic
-    for (int i = 0; i < W.size(); i++) {
-      if (W[i] < W_new[i] - eps) {
-   	std::cout << "Error: not monotonic." << std::endl;
-	std::cout << W[i] << '\t' << W_new[i] << '\t' << W[i] - W_new[i] << std::endl;
-	//	exit(1);
-      }
     }
 
 

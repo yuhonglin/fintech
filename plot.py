@@ -210,8 +210,47 @@ def onlyplot(index_to_plot, nskip = 0, title='', ax=None):
 #        if pow(max(x)-min(x),2) + pow(max(y)-min(y), 2) < 0.0000001:
             ## a single point
 #            ax.add_artist(plt.Circle((np.mean(x),np.mean(y)), 0.0005, color=p[0].get_color()))
-            
 
+class column:
+    data = []
+    name = ''
+    def __init__(self, n, d):
+        self.name = n
+        self.data = d
+
+def dump(output_dir, stateprof):
+    ## action profile
+    tmp = [x.split('\t')[1].replace(', | ', ',') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
+    tmp = [x.replace(', |', '').split(',') for i,x in enumerate(tmp)]
+    ap1_cc      = column('ClientCapitalBought(Firm1)', [int(x[0]) for x in tmp])
+    ap1_quality = column('ClientCapitalBought(Firm2)', [int(x[1]) for x in tmp])
+    ap1_price   = column('Quality(Firm1)',[int(x[2]) for x in tmp])
+    ap2_cc      = column('Quality(Firm2)',[int(x[3]) for x in tmp])
+    ap2_quality = column('Price(Firm1)',[int(x[4]) for x in tmp])
+    ap2_price   = column('Price(Firm2)',[int(x[5]) for x in tmp])
+
+    ## state payoff
+    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
+    sp1 = column('StageProfit(Firm1)', [x[0] for x in payoff[0]])
+    sp2 = column('StageProfit(Firm2)', [x[1] for x in payoff[0]])
+
+    ## continuation profit
+    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
+    cp1 = column('ContinuationProfit(Firm1)', [x[0] for x in payoff[1]])
+    cp2 = column('ContinuationProfit(Firm2)', [x[1] for x in payoff[1]])
+
+    ## save
+    ofile1 = open(output_dir + '/tangent_point_info_firm1_(%f,%f).csv' % (stateprof[0][0], stateprof[1][0]), 'w')
+    ofile1.write('ClientCapitalBought,Quality,Price,StateProfit,ContinuationProfit\n')
+    for i in range(len(ap1_cc.data)):
+        ofile1.write( '%f,%f,%f,%f,%f\n' % (ap1_cc.data[i], ap1_quality.data[i], ap1_price.data[i], sp1.data[i], cp1.data[i]) )
+
+    ofile2 = open(output_dir + '/tangent_point_info_firm2_(%f,%f).csv' % (stateprof[0][0], stateprof[1][0]), 'w')
+    ofile2.write('ClientCapitalBought,Quality,Price,StateProfit,ContinuationProfit\n')
+    for i in range(len(ap2_cc.data)):
+        ofile2.write( '%f,%f,%f,%f,%f\n' % (ap2_cc.data[i], ap2_quality.data[i], ap2_price.data[i], sp2.data[i], cp2.data[i]) )
+        
+        
 def plot_last(idx):
     fig, ax = plt.subplots()
     skip = -1
@@ -222,42 +261,17 @@ def plot_last(idx):
     dimy = 0.003
     dimx = [-0.009, 0.014]
     xshift = 0.002304
+
+    txt_head = ''
     
     stateprof = index_state[idx[1]]
-    tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
-    tmp = [str(i) + '\t(' + x.replace(', |', ')') for i,x in enumerate(tmp)]
-    txt = '\n'.join(tmp)
-    fn = 'Action Profile ' + str((stateprof[0][0],stateprof[1][0]))
-    open('doc/txt/' + fn + '.txt', 'w').write(txt)
-
-    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[0])])
-    fn = 'Stage Profit ' + str((stateprof[0][0],stateprof[1][0]))
-    open('doc/txt/' + fn + '.txt', 'w').write(txt)
-
-    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[1])])
-    fn = 'Continuation Profit ' + str((stateprof[0][0],stateprof[1][0]))
-    open('doc/txt/' + fn + '.txt', 'w').write(txt)
-
-    # ------------------------------
+    dump('./doc/txt/', stateprof)
     
     stateprof = [[stateprof[0][0]], [stateprof[0][0]]]
-    tmp = [x.split('\t')[1].replace(', | ', '),(') for x in get_equi_actprof(stateprof[0][0],stateprof[1][0])]
-    tmp = [str(i) + '\t(' + x.replace(', |', ')') for i, x in enumerate(tmp)]
-    txt = '\n'.join(tmp)
-    fn = 'Action Profit ' + str((stateprof[0][0],stateprof[1][0]))
-    open('doc/txt/' + fn + '.txt', 'w').write(txt)
+    dump('./doc/txt/', stateprof)
 
-    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[0])])
-    fn = 'Stage Profit ' + str((stateprof[0][0],stateprof[1][0]))
-    open('doc/txt/' + fn + '.txt', 'w').write(txt)
-
-    payoff = get_payoff(stateprof[0][0],stateprof[1][0])
-    txt = '\n'.join(['%d\t%0.5f,%0.5f' % (i, x[0], x[1]) for i, x in enumerate(payoff[1])])
-    fn = 'Continuation Profit ' + str((stateprof[0][0],stateprof[1][0]))
-    open('doc/txt/' + fn + '.txt', 'w').write(txt)
+    stateprof = [[stateprof[1][0]], [stateprof[1][0]]]
+    dump('./doc/txt/', stateprof)
     
     ax.set_aspect('equal', 'box')
     ax.set_xlabel('Firm 1')
@@ -275,10 +289,10 @@ def plot_last(idx):
 #plot(45, 20)
 
 plot_last_state_pair(0, 5)
-plot_last_state_pair(1, 5)
-plot_last_state_pair(2, 5)
-plot_last_state_pair(3, 5)
-plot_last_state_pair(4, 5)
-plot_last_state_pair(5,0)
-plot_last_state_pair(3,0)
-plot_last_state_pair(4,0)
+# plot_last_state_pair(1, 5)
+# plot_last_state_pair(2, 5)
+# plot_last_state_pair(3, 5)
+# plot_last_state_pair(4, 5)
+# plot_last_state_pair(5,0)
+# plot_last_state_pair(3,0)
+# plot_last_state_pair(4,0)

@@ -1,5 +1,196 @@
 #include "FinTech.hpp"
 
+// 5.1 If k == 0 and k' > 0: pay an entry cost. The total cost will be
+//     "client_capital_price*(k'-k) + entry cost"
+// 5.2 If k == 0 and k' == 0: total cost=0
+// 5.3 If k > 0 and k' > k: total cost = client_capital_price*(k'-k) + maintenance_cost*k.
+// 5.4 If k > 0 and k > k' > 0: total cost = -sale_price*(k-k') + maintenance_cost*k'.
+// 5.5 If k > 0 and k' == 0: obtain a scrap value. total cost = -sale_price*k - scrap value.
+//
+// Currently, we set sale_price = 0;
+std::vector<double> FinTech::get_unitclientcapital_cost(profile& sp, profile &ap) {
+  std::vector<double> ret(num_agent_);
+
+  // Version 1 linear maintenance unit cost
+  const std::vector<double> entry_cost                = {0.1, 0.1};
+  const std::vector<double> client_capital_unit_price = {0.01, 0.01};
+  const std::vector<double> maintenance_unit_cost     = {0.15, 0.15};
+  const std::vector<double> scrap_value               = {0.0,0.0};
+
+  
+  for (int i = 0; i < num_agent_; i++) {
+    ret[i] = 0.;
+    
+    const double &k    = sp[i][0];
+    const double &nxtk = ap[i][0];
+
+    if (k == 0) {
+      if (nxtk > 0) {
+  	ret[i] = entry_cost[i] + client_capital_unit_price[i]*nxtk;
+      } else {
+  	ret[i] = 0.;
+      }
+    } else {
+      if (nxtk >= k) {
+  	ret[i] = client_capital_unit_price[i]*(nxtk-k) + maintenance_unit_cost[i]*k;
+      } else if (k > nxtk and nxtk > 0) {
+  	ret[i] = maintenance_unit_cost[i]*nxtk;
+      } else {
+  	ret[i] = - scrap_value[i];
+      }
+    }
+  }
+
+
+  // // Version 2 Add some data tax
+  // const std::vector<double> entry_cost                = {0.01, 0.01};
+  // const std::vector<double> client_capital_unit_price = {0.01, 0.01};
+  // const std::vector<double> maintenance_unit_cost     = {0.01, 0.01};
+  // const std::vector<double> scrap_value               = {0.0,0.0};
+
+  // for (int i = 0; i < num_agent_; i++) {
+  //   ret[i] = 0.;
+    
+  //   const double &k    = sp[i][0];
+  //   const double &nxtk = ap[i][0];
+
+  //   if (k == 0) {
+  //     if (nxtk > 0) {
+  // 	ret[i] = entry_cost[i] + client_capital_unit_price[i]*nxtk;
+  //     } else {
+  // 	ret[i] = 0.;
+  //     }
+  //   } else {
+  //     if (nxtk >= k) {
+  // 	ret[i] = client_capital_unit_price[i]*(nxtk-k) + maintenance_unit_cost[i]*k;
+  //     } else if (k > nxtk and nxtk > 0) {
+  // 	ret[i] = maintenance_unit_cost[i]*nxtk;
+  //     } else {
+  // 	ret[i] = - scrap_value[i];
+  //     }
+  //   }
+  // }
+
+
+  
+  return ret;
+}
+
+std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
+  std::vector<double> ret(num_agent_);
+
+  const std::vector<double> unit_product_cost = {0.01, 0.01};
+  
+  for (int i=0; i<num_agent_; i++) {
+    ret[i] = unit_product_cost[i]*a[i][1];
+  }
+  return ret;
+}
+
+std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
+  std::vector<double> ret(num_agent_);
+  
+  // // Version 1: this version uses the previous client capital
+  // for (int i=0; i<num_agent_; i++) {
+  //   if (a[i][1] == 0) {
+  //     ret[i] = 0;
+  //     continue;
+  //   }
+	
+  //   if (s[i][0] != 0) {
+  //     ret[i] = std::pow(a[i][1],2) / 20 / std::abs(s[i][0]); // 
+  //   } else {
+  //     ret[i] = 1e2; // return a big number, should not be too big, otherwise, starting set will be too big
+  //   }
+  //  }
+
+  // // Version 2: this version uses the next client capital
+  // profile next_state = get_next_state(s, a);
+  // for (int i=0; i<num_agent_; i++) {
+  //   if (a[i][1] == 0) {
+  //     ret[i] = 0;
+  //     continue;
+  //   }
+	
+  //   if (next_state[i][0] != 0) {
+  //     ret[i] = std::pow(a[i][1],2) / 20 / std::abs(next_state[i][0]); // this uses the new client capital
+  //   } else {
+  //     ret[i] = 1e2; // return a big number, should not be too big, otherwise, starting set will be too big
+  //   }
+  //  }
+
+  // // Version 3: this version uses the next client capital, with different scale
+  // profile next_state = get_next_state(s, a);
+  // for (int i=0; i<num_agent_; i++) {
+  //   if (a[i][1] == 0) {
+  //     ret[i] = 0;
+  //     continue;
+  //   }
+	
+  //   if (next_state[i][0] != 0) {
+  //     ret[i] = std::pow(a[i][1],2) / 5.0 / std::abs(next_state[i][0]); // this uses the new client capital
+  //   } else {
+  //     ret[i] = 1e2; // return a big number, should not be too big, otherwise, starting set will be too big
+  //   }
+  //  }
+
+
+  // // Version 4: this version uses the next client capital and when the client capital is very large, use different curve
+  // profile next_state = get_next_state(s, a);
+  // for (int i=0; i<num_agent_; i++) {
+  //   if (a[i][1] == 0) {
+  //     ret[i] = 0;
+  //     continue;
+  //   }
+	
+  //   if (next_state[i][0] != 0) {
+  //     if (next_state[i][0] <= 2) {
+  // 	ret[i] = std::pow(a[i][1],2) / 4.0 / std::abs(next_state[i][0]); // this uses the new client capital
+  //     } else {
+  // 	ret[i] = std::pow(a[i][1],2) / 3.0 / std::abs(next_state[i][0]); // this uses the new client capital
+  //     }
+  //   } else {
+  //     ret[i] = 1e2; // return a big number, should not be too big, otherwise, starting set will be too big
+  //   }
+  //  }
+
+  // // Version 5: this version uses the next client capital and use squared
+  // profile next_state = get_next_state(s, a);
+  // for (int i=0; i<num_agent_; i++) {
+  //   if (a[i][1] == 0) {
+  //     ret[i] = 0;
+  //     continue;
+  //   }
+	
+  //   if (next_state[i][0] != 0) {
+  //     ret[i] = std::pow(a[i][1],2) / 5.0 / std::pow(next_state[i][0],2); // this uses the new client capital
+  //   } else {
+  //     ret[i] = 1e2; // return a big number, should not be too big, otherwise, starting set will be too big
+  //   }
+  //  }
+
+  // Version 5: this version uses the next client capital and use logistic-like curves
+  profile next_state = get_next_state(s, a);
+  for (int i=0; i<num_agent_; i++) {
+    if (a[i][1] == 0) {
+      ret[i] = 0;
+      continue;
+    }
+	
+    //    if (s[i][0] != 0) {
+    if (next_state[i][0] != 0) {
+      // ret[i] = std::pow(a[i][1],2) / 5.0 / (.5 + std::exp(s[i][0]/2.)); // this uses the old client capital      
+      ret[i] = std::pow(a[i][1],2) / 5.0 / (.5 + std::exp(next_state[i][0]/2.)); // this uses the new client capital
+    } else {
+      ret[i] = 1e2; // return a big number, should not be too big, otherwise, starting set will be too big
+    }
+   }
+
+  
+  return ret;
+}
+
+
 // law of motion
 profile FinTech::get_next_state(profile& s, profile& a) {
   auto ret = s;
@@ -158,73 +349,4 @@ std::vector<double> FinTech::get_quantity(profile& a) {
   
   return ret;
 }
-
-std::vector<double> FinTech::get_setup_cost(profile &s, profile &a) {
-  std::vector<double> ret(num_agent_);
-  // profile next_state = get_next_state(s, a);
-  for (int i=0; i<num_agent_; i++) {
-    if (a[i][1] == 0) {
-      ret[i] = 0;
-      continue;
-    }
-	
-    if (s[i][0] != 0) {
-      ret[i] = std::pow(a[i][1],2) / 20 / std::abs(s[i][0]); //
-    } else {
-      ret[i] = 30; // return a big number    
-    }
-   }
-  return ret;
-}
-
-std::vector<double> FinTech::get_unitproduct_cost(profile &a) {
-  std::vector<double> ret(num_agent_);
-  for (int i=0; i<num_agent_; i++) {
-    ret[i] = .1*a[i][1];
-  }
-  return ret;
-}
-
-// 5.1 If k == 0 and k' > 0: pay an entry cost. The total cost will be
-//     "client_capital_price*(k'-k) + entry cost"
-// 5.2 If k == 0 and k' == 0: total cost=0
-// 5.3 If k > 0 and k' > k: total cost = client_capital_price*(k'-k) + maintenance_cost*k.
-// 5.4 If k > 0 and k > k' > 0: total cost = -sale_price*(k-k') + maintenance_cost*k'.
-// 5.5 If k > 0 and k' == 0: obtain a scrap value. total cost = -sale_price*k - scrap value.
-//
-// Currently, we set sale_price = 0;
-std::vector<double> FinTech::get_unitclientcapital_cost(profile& sp, profile &ap) {
-  std::vector<double> ret(num_agent_);
-
-  const double entry_cost                = 0.3;
-  const double client_capital_unit_price = 0.1;
-  const double maintenance_unit_cost     = 0.1;
-  const double scrap_value               = 0.0;
-  
-  for (int i = 0; i < num_agent_; i++) {
-    ret[i] = 0.;
-    
-    const double &k    = sp[i][0];
-    const double &nxtk = ap[i][0];
-
-    if (k == 0) {
-      if (nxtk > 0) {
-	ret[i] = entry_cost + client_capital_unit_price*nxtk;
-      } else {
-	ret[i] = 0.;
-      }
-    } else {
-      if (nxtk >= k) {
-	ret[i] = client_capital_unit_price*(nxtk-k) + maintenance_unit_cost*k;
-      } else if (k > nxtk and nxtk > 0) {
-	ret[i] = maintenance_unit_cost*nxtk;
-      } else {
-	ret[i] = - scrap_value;
-      }
-    }
-  }
-
-  return ret;
-}
-
 

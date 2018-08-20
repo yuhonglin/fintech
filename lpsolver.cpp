@@ -95,6 +95,7 @@ void lp_solver::solve(double* c, double* A, // inputs
     stat = INFEASIBLE;
   } else {
      stat = ERROR;
+     std::cerr << "Error code : " << inform << std::endl;
     //stat = INFEASIBLE;
   }
 

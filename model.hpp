@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <string>
 
 #include "array.hpp"
 #include "profile.hpp"
@@ -59,6 +60,13 @@ public:
   // helper functions
   std::pair<std::vector<double>, std::vector<double>>
   stage_profit_bound(); // return maximum possible stage profit for each player
+  
+  void output_state_dynamic(const std::string& fn, const std::string& sep=" @ "); // save the state dynamics to a file
+
+  void output_state(const std::string& fn);
+
+  void output_action(const std::string& fn, const std::string& sep=" @ ");
+  
 };
 
 

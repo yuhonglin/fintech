@@ -1,5 +1,6 @@
 #include <limits>
 #include <utility>
+#include <fstream>
 
 #include "model.hpp"
 
@@ -70,4 +71,49 @@ model::stage_profit_bound() {
 
 bool model::if_skip(const profile &sp, const profile &act) {
   return false;
+}
+
+void model::output_state_dynamic(const std::string& fn, const std::string& sep) {
+  
+  std::ofstream fout(fn);
+  
+  auto func_state = get_state_func();
+  for (profile sp = func_state.begin(); sp != func_state.end(); func_state.inc(sp)) {
+    func_prof func_action = get_action_func(sp);
+    for (profile ap = func_action.begin(); ap != func_state.end(); func_action.inc(ap)) {
+      auto nxt_sp = get_next_state(sp, ap);
+      func_state.round(nxt_sp);
+      // fout << sp.index() << sep << ap.index() << sep << nxt_ap.index() << '\n';
+      fout << sp << sep << ap << sep << nxt_sp << '\n';
+    }
+  }
+
+  fout.close();
+}
+
+void model::output_state(const std::string& fn) {
+
+  std::ofstream of(fn);
+  
+  auto func_state = get_state_func();
+  for(profile i = func_state.begin(); i!=func_state.end(); func_state.inc(i)) {
+    of << i << std::endl;
+  }
+  of.close();    
+}
+
+void model::output_action(const std::string& fn,  const std::string& sep) {
+  
+  std::ofstream fout(fn);
+  
+  auto func_state = get_state_func();
+  for (profile sp = func_state.begin(); sp != func_state.end(); func_state.inc(sp)) {
+    func_prof func_action = get_action_func(sp);
+    for (profile ap = func_action.begin(); ap != func_state.end(); func_action.inc(ap)) {
+      auto nxt_ap = get_next_state(sp, ap);
+      fout << sp.index() << sep << ap << '\n';
+    }
+  }
+
+  fout.close();
 }
